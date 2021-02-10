@@ -1,0 +1,4 @@
+---
+- name: stop barman
+  command: killall barman
+  ignore_errors: yes

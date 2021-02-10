@@ -1,0 +1,6 @@
+---
+- name: restart and reload systemd-journal-upload-follow
+  systemd:
+    name: systemd-journal-upload-follow
+    daemon_reload: yes
+    state: restarted

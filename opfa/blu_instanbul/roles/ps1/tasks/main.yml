@@ -1,0 +1,5 @@
+---
+- name: install PS1
+  copy:
+    dest: /etc/profile.d/ps1.sh
+    src: roles/ansible-ps1/files/ps1.sh

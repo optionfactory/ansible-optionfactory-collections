@@ -1,0 +1,6 @@
+distinguished_name: 'CN=example.com, OU=example, O=example.com, L=Italy, S=Unknown, C=IT'
+keystore_path: /opt/apache-tomcat/conf/keystore
+storepass: changeme
+keypass: changeme
+valDays: 9999
+java_additional_options: ''

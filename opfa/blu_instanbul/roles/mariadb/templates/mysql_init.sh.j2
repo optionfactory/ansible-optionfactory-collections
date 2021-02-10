@@ -1,0 +1,11 @@
+#!/bin/bash
+if [ ! -d "{{ maria_datadir }}/mysql" ]; then
+    echo "initializing database"
+    mysql_install_db --user=mysql --datadir="{{ maria_datadir }}"  >/dev/null 2>&1
+    echo "database initialized"
+    cat {{ maria_initdir }}/*.sql | perl -0777 -pe 's/^\s*#.*\n//gm' | perl -0777 -pe 's/([^\n;])[\r\t\n ]+/\1 /gm' | perl -0777 -pe 's/\n{2,}/\n/g' > /tmp/mariadb-first-time.sql
+    echo "executing first time initialization"
+    /usr/sbin/mysqld --defaults-file=/etc/my.cnf --user=mysql --init-file=/tmp/mariadb-first-time.sql
+    echo "ended first time initialization"
+fi
+/usr/lib/mysql/mysql-systemd-helper     start

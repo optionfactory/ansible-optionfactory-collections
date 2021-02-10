@@ -1,0 +1,29 @@
+DELETE FROM mysql.user;
+FLUSH PRIVILEGES;
+DROP DATABASE IF EXISTS test;
+{% for maria_db in maria_dbs %}
+CREATE DATABASE IF NOT EXISTS {{ maria_db.name }};
+{% endfor %}
+
+CREATE USER 'root'@'localhost' IDENTIFIED BY '';
+GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+CREATE USER 'root'@'%' IDENTIFIED BY '{{ maria_root_psw }}';
+GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+{% if maria_replica_ip is defined %}
+CREATE USER 'replication'@'%' IDENTIFIED BY '{{ maria_replication_psw }}';
+GRANT REPLICATION SLAVE ON *.* TO replication WITH GRANT OPTION;
+{% endif %}
+
+{% for maria_db in maria_dbs %}
+CREATE USER '{{ maria_db.username }}'@'%' IDENTIFIED BY '{{ maria_db.password }}';
+GRANT ALL ON *.* TO '{{ maria_db.username }}'@'%' WITH GRANT OPTION;
+REVOKE SUPER ON *.* FROM '{{ maria_db.username }}'@'%';
+{% endfor %}
+
+FLUSH PRIVILEGES;
+
+{% if maria_replica_ip is defined %}
+CHANGE MASTER TO MASTER_HOST='{{ maria_replica_ip }}', MASTER_USER='replication', MASTER_PASSWORD='{{ maria_replication_psw }}', master_use_gtid=slave_pos;
+START SLAVE;
+{% endif %}

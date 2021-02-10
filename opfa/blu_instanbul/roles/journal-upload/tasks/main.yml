@@ -1,0 +1,32 @@
+---
+- name: ensure package installed (Debian)
+  when: ansible_os_family == 'Debian'
+  apt:
+    update_cache: yes
+    name: systemd-journal-remote
+    state: present
+- name: ensure private key is installed
+  notify: "restart and reload systemd-journal-upload-follow"
+  copy:
+      src: "{{ private_key_file }}"
+      dest: /etc/ssl/private/journal-upload.pem
+- name: ensure certificate is installed
+  notify: "restart and reload systemd-journal-upload-follow"
+  copy:
+      src: "{{ certificate_file  }}"
+      dest: /etc/ssl/certs/journal-upload.pem
+- name: ensure certification authority is installed
+  notify: "restart and reload systemd-journal-upload-follow"
+  copy:
+      src: "{{ trusted_ca_file }}"
+      dest: /etc/ssl/certs/journal-upload.trustedca.pem
+- name: "create journal-upload-follow service"
+  notify: "restart and reload systemd-journal-upload-follow"
+  template:
+    src: journal-upload-follow.j2
+    dest: "/etc/systemd/system/journal-upload-follow.service"
+- name: ensure service is started
+  service:
+    name: systemd-journal-upload-follow
+    state: started
+    enabled: yes

@@ -1,0 +1,4 @@
+{% for host in hosts %}
+{{ host.target_host }}:{{ host.port }}:*:barman:{{ host.barman_user_pass }}
+{{ host.target_host }}:{{ host.port }}:*:streaming_barman:{{ host.barman_user_pass }}
+{% endfor %}

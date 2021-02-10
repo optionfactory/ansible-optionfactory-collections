@@ -1,0 +1,31 @@
+[Unit]
+Description=Journal Remote Upload Service Daemon
+Documentation=man:systemd-journal-upload(8)
+Wants=network-online.target
+After=network-online.target
+
+
+[Service]
+Restart=always
+RestartSec=5
+ExecStart=/lib/systemd/systemd-journal-upload --url={{ remote_url }} --key=/etc/ssl/private/journal-upload.pem --cert=/etc/ssl/certs/journal-upload.pem --trust=/etc/ssl/certs/journal-upload.trustedca.pem --save-state=/var/lib/systemd/journal-upload/journal-upload-follow.state  --system
+User=systemd-journal-upload
+DynamicUser=yes
+SupplementaryGroups=systemd-journal
+WatchdogSec=3min
+PrivateDevices=yes
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+LockPersonality=yes
+StateDirectory=systemd/journal-upload
+
+# If there are many split up journal files we need a lot of fds to
+# access them all and combine
+LimitNOFILE=16384

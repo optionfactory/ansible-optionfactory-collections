@@ -1,0 +1,115 @@
+---
+- name: Create tomcat group
+  group:
+    name: tomcat
+    system: yes
+    state: present
+- name: Create tomcat user
+  user:
+    name: tomcat
+    group: tomcat
+    system: yes
+    state: present
+- name: 'Create {{ service_name }} services'
+  copy:
+    src: files/tomcat.service
+    dest: '/etc/systemd/system/{{ service_name }}.service'
+  register: tomcat_service
+- name: "systemctl daemon reload"
+  shell: "systemctl daemon-reload"
+  when: tomcat_service.changed
+- name: 'Stop service {{ service_name }}'
+  service:
+    name: '{{ service_name }}.service'
+    state: stopped
+- name: create tomcat dir
+  file:
+    path: /opt/apache-tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat
+- name: Download tomcat
+  get_url:
+    url: https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz
+    dest: /opt/apache-tomcat-8.5.34.tar.gz
+    checksum: sha512:131dfe23918f33fb24cefa7a03286c786304151f95f7bc0b6e34dfb6b0d1e65fe606e48b85c60c8a522938d1a01a36b540e69c94f36973321858e229731cda82
+  register: tom_update
+- name: Install tomcat
+  unarchive:
+    src: /opt/apache-tomcat-8.5.34.tar.gz
+    dest: /opt/apache-tomcat
+    extra_opts: [--strip-components=1]
+    remote_src: yes
+  become_user: tomcat
+  when: tom_update.changed
+- name: Configure tomcat
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dst }}'
+    owner: tomcat
+    group: tomcat
+    mode: '{{ item.mode }}'
+  with_items:
+    - {src: files/setenv.sh.j2, dst: /opt/apache-tomcat/bin/setenv.sh, mode: '0750'}
+    - {src: files/logging.properties, dst: /opt/apache-tomcat/conf/logging.properties, mode: '0600'}
+    - {src: files/server.xml, dst: /opt/apache-tomcat/conf/server.xml, mode: '0600'}
+- name: Check if trustore is present
+  stat:
+    path: '{{ keystore_path }}'
+  register: tom_truststore
+- name: Create keystore (only first time)
+  shell: 'keytool -genkey -alias tomcat -dname "{{ distinguished_name }}" -keyalg RSA -keystore {{ keystore_path }} -storepass {{ storepass }} -keypass {{ keypass }} -validity {{ valDays }}'
+  when: not tom_truststore.stat.exists
+- name: Set keystore permission (only first time)
+  file:
+    path: '{{ keystore_path }}'
+    owner: tomcat
+    group: tomcat
+  when: not tom_truststore.stat.exists
+- name: Delete tomcat default webapps
+  file:
+    path: '/opt/apache-tomcat/webapps/{{ item }}'
+    state: absent
+  with_items:
+    - ROOT
+    - docs
+    - examples
+    - host-manager
+    - manager
+  when: tom_update.changed
+- name: 'Create {{service_name }} directories'
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+  with_items:
+    '{{ configuration_folders }}'
+- name: 'Copy configuration of {{ service_name }}'
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items:
+    '{{ configuration_files }}'
+- name: 'copy executables of {{ service_name }}'
+  synchronize:
+    src: '{{ service_binary.src }}'
+    dest:  '{{ service_binary.dest_path }}/ROOT.war'
+    checksum: yes
+    use_ssh_args: yes
+- name: set war permission
+  file:
+    path: '{{ service_binary.dest_path }}/ROOT.war'
+    owner: tomcat
+    group: tomcat
+- name: Symlink to tomcat webapp dir
+  file:
+    src: '{{ service_binary.dest_path }}/ROOT.war'
+    dest: /opt/apache-tomcat/webapps/ROOT.war
+    state: link
+    owner: tomcat
+    group: tomcat
+- name: 'start service {{ service_name }}'
+  service:
+    name: '{{ service_name }}.service'
+    state: started
+    enabled: yes

@@ -1,0 +1,16 @@
+[Unit]
+Description=Apache Tomcat service
+
+[Service]
+WorkingDirectory=/opt/apache-tomcat
+User=tomcat
+Group=tomcat
+Restart=always
+RestartSec=5
+PIDFile=/var/run/apache-tomcat.pid
+ExecStart= /opt/apache-tomcat/bin/catalina.sh run
+ExecStop= /opt/apache-tomcat/bin/catalina.sh stop
+
+
+[Install]
+WantedBy=multi-user.target

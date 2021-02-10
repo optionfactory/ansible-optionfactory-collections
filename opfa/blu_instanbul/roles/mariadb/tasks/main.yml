@@ -1,0 +1,89 @@
+---
+- name: install mariadb
+  zypper:
+    name:
+      - mariadb
+    state: present
+  when: ansible_os_family == 'Suse' and maria_server_id is not undefined
+- name: create and set permission mariadb directories
+  file:
+    path: '{{ item }}'
+    owner: mysql
+    group: mysql
+    state: directory
+  with_items:
+    - '{{ maria_datadir }}'
+    - '{{ maria_confdir }}'
+    - '{{ maria_initdir }}'
+    - '/var/run/mysql'
+  when: maria_server_id is not undefined
+- name: configure mariadb (Master)
+  template:
+    src: templates/my.cnf.master.j2
+    dest: /etc/my.cnf
+    owner: mysql
+    group: mysql
+    mode: '0640'
+  when: maria_server_id is not undefined and (maria_slave is undefined or not maria_slave)
+  notify: mariadb-restart
+- name: configure mariadb (Slave)
+  template:
+    src: templates/my.cnf.slave.j2
+    dest: /etc/my.cnf
+    owner: mysql
+    group: mysql
+    mode: '0640'
+  when: maria_server_id is not undefined and maria_slave is not undefined and maria_slave
+  notify: mariadb-restart
+- name: Copy Mariadb service
+  template:
+    src: templates/mysql.service.j2
+    dest: /usr/lib/systemd/system/mysql.service
+  notify: mariadb-restart
+  register: mariadb_service
+  when: maria_server_id is not undefined
+- name: Copy Mariadb init script
+  template:
+    src: templates/mysql_init.sh.j2
+    dest: '{{ maria_confdir }}/mysql.sh'
+    mode: '0755'
+  notify: mariadb-restart
+  register: mariadb_init
+  when: maria_server_id is not undefined
+- name: 'systemctl daemon reload if mysql.service change'
+  shell: "systemctl daemon-reload"
+  when: maria_server_id is not undefined and (mariadb_service.changed or mariadb_init.changed)
+- name: check if mariadb is configured
+  stat:
+    path: '{{ maria_datadir }}/mysql'
+  register: mariadb_config
+  when: maria_server_id is not undefined
+- name: Copy sql init scripts (Only Master)
+  template:
+    src: templates/0000_init_master.sql.j2
+    dest: '{{ maria_initdir }}/0000_create_db_master.sql'
+  when: maria_server_id is not undefined and not mariadb_config.stat.exists and (maria_slave is undefined or not maria_slave)
+- name: Copy sql init scripts (Only Slave)
+  template:
+    src: templates/0000_init_slave.sql.j2
+    dest: '{{ maria_initdir }}/0000_create_db_slave.sql'
+  when: maria_server_id is not undefined and not mariadb_config.stat.exists and maria_slave is not undefined and maria_slave
+- name: flush handlers #Need before "ensure mariadb is running" to prevent multiple mariadb restart
+  meta: flush_handlers
+- name: ensure mariadb service is running
+  service:
+    name: mysql.service
+    state: started
+    enabled: yes
+  when: maria_server_id is not undefined
+- name: copy file with master function
+  copy:
+    dest: /tmp/master_or_fail.sql
+    content: |
+      DELIMITER $$
+      create function mysql.master_or_fail() returns int deterministic begin if @@global.read_only <> 0 then signal sqlstate '08000' SET MESSAGE_TEXT = 'Not a master'; end if; return 0; end $$
+      DELIMITER ;
+  when: maria_server_id is not undefined and not mariadb_config.stat.exists
+- name: add master_or_fail function
+  shell: mysql -uroot < /tmp/master_or_fail.sql
+  when: maria_server_id is not undefined and not mariadb_config.stat.exists

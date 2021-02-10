@@ -1,0 +1,21 @@
+[{{ item.target_name }}]
+description =  "Streaming-only {{ item.target_name }} backup"
+conninfo = host={{ item.target_host }} port={{ item.port }} user=barman dbname={{ item.db_name }} 
+streaming_conninfo = host={{ item.target_host }} port={{ item.port }} user=streaming_barman
+backup_method = postgres
+;streaming_backup_name = barman_streaming_backup
+archiver = off
+streaming_archiver = on
+slot_name = barman
+;streaming_archiver_name = barman_receive_wal
+;streaming_archiver_batch_size = 50
+
+; PATH setting for this server
+;path_prefix = "/usr/pgsql-9.6/bin"
+
+retention_policy = {{ item.retention_policy }}
+
+{% if upload_to_s3 %}
+post_archive_script=/usr/local/bin/aws s3 cp $BARMAN_FILE s3://{{ aws_s3_bucket }}/{{ item.target_name }}/wals/
+post_backup_script=mkdir -p /tmp/{{ item.target_name }} && tar -zcf /tmp/{{ item.target_name }}/$BARMAN_BACKUP_ID.tar.gz  $BARMAN_BACKUP_DIR || true && /usr/local/bin/aws s3 mv /tmp/{{ item.target_name }}/$BARMAN_BACKUP_ID.tar.gz s3://{{ aws_s3_bucket }}/{{ item.target_name }}/base/
+{% endif %}

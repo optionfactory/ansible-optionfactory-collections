@@ -1,0 +1,27 @@
+[mariadb]
+server-id={{ maria_server_id}}
+bind-address=0.0.0.0
+port = 3306
+skip-name-resolve
+log_output = TABLE
+slow_query_log=1
+long_query_time=3
+datadir = {{ maria_datadir}}
+socket = /var/run/mysql/mysql.sock
+innodb_file_per_table=ON
+transaction_isolation=READ-COMMITTED
+gtid-domain-id=1
+log-bin
+binlog_format=mixed
+relay-log={{ maria_server_id }}-relay-bin
+log-basename={{ maria_server_id }}
+expire_logs_days=15
+
+{% for maria_db in maria_dbs %}
+binlog-do-db={{ maria_db.name }}
+replicate-do-db={{ maria_db.name }}
+{% endfor %}
+
+auto_increment_increment=2
+auto_increment_offset=2
+read-only=1

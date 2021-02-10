@@ -1,0 +1,18 @@
+#Taken from official script.
+# Removed 'ExecStartPre=/usr/lib/mysql/mysql-systemd-helper  install'
+# Edit 'ExecStart' to execute external script
+[Unit]
+Description=MySQL server
+Wants=basic.target
+Conflicts=mysql.target
+After=basic.target network.target syslog.target
+
+[Service]
+Restart=on-abort
+Type=simple
+ExecStartPre=/usr/lib/mysql/mysql-systemd-helper  upgrade
+ExecStart={{ maria_confdir }}/mysql.sh
+ExecStartPost=/usr/lib/mysql/mysql-systemd-helper wait
+
+[Install]
+WantedBy=multi-user.target
