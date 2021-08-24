@@ -12,9 +12,9 @@
     regexp: '^ *RateLimitInterval='
     line: 'RateLimitInterval=1s'
   notify: "restart journald"
-- name: journald do not forward to Syslog
+- name: set journald forward to Syslog => {{ forward_to_syslog }}
   lineinfile:
     dest: /etc/systemd/journald.conf
     regexp: '^ *ForwardToSyslog='
-    line: 'ForwardToSyslog=no'
+    line: 'ForwardToSyslog={{ forward_to_syslog }}'
   notify: "restart journald"
