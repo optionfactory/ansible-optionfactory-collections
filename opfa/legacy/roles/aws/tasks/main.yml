@@ -1,0 +1,65 @@
+---
+- name: disable requiretty
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: 'Defaults.*requiretty'
+    state: absent
+- name: AWS kswapd high cpu usage workaround https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1518457/comments/69
+  lineinfile:
+    dest: /lib/udev/rules.d/40-vm-hotadd.rules
+    line: '#ATTR{[dmi/id]sys_vendor}=="Xen", GOTO="vm_hotadd_apply" # AWS kswapd high cpu usage workaround https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1518457/comments/69'
+    regexp: '^#?ATTR\{\[dmi/id\]sys_vendor\}=="Xen", GOTO="vm_hotadd_apply".*$'
+    state: present
+- name: install things
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int < 20
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'software-properties-common', 'curl', 'ntp', 'rsync', 'python-pip', 'net-tools', 'ngrep']
+    state: present
+    update_cache: yes
+- name: install things (ubuntu 20)
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 20
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'software-properties-common', 'curl', 'ntp', 'rsync', 'python3-pip', 'net-tools', 'ngrep']
+    state: present
+    update_cache: yes
+- name: make journald persistent (/var/log/journal)
+  file:
+    dest: "/var/log/journal"
+    state: directory
+    owner: root
+    group: systemd-journal
+    mode: 0750
+  notify: "restart journald"
+- name: allow 1000 messages per second on journald
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^ *RateLimitInterval='
+    line: 'RateLimitInterval=1s'
+  notify: "restart journald"
+- name: journald do not forward to Syslog
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^ *ForwardToSyslog='
+    line: 'ForwardToSyslog=no'
+  notify: "restart journald"
+- name: ensure ntp is started
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+- name: ensure apt update/upgrade timer is disabled
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+- name: install PS1
+  copy:
+    dest: /etc/profile.d/ps1.sh
+    src: roles/ansible-aws/files/ps1.sh
+- name: fix screen profile
+  lineinfile:
+    dest: /etc/screenrc
+    line: 'shell -/bin/bash'  

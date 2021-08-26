@@ -1,0 +1,5 @@
+---
+- name: reload prometheus-node  
+  service:
+    name:  prometheus-node.service
+    state: restarted

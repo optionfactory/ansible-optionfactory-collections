@@ -1,0 +1,13 @@
+[Unit]
+Description=prometheus-node service
+
+[Service]
+User=health
+Restart=always
+RestartSec=5
+PIDFile=/var/run/prometheus-node.pid
+ExecStart=/opt/prometheus-node/node_exporter 
+ExecStop=-/usr/bin/pkill --pidfile /var/run/prometheus-node.pid
+
+[Install]
+WantedBy=multi-user.target

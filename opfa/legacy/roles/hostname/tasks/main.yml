@@ -1,0 +1,15 @@
+---
+- name: set hostname
+  hostname:
+      name: '{{ fqdn }}'
+- name: disable cloud-init changes to hostname
+  lineinfile:
+    path: "/etc/cloud/cloud.cfg"
+    regexp: "^preserve_hostname:\\s*false$"
+    line: "preserve_hostname: true"
+- name: set cloud-init default fqdn
+  lineinfile:
+    path: "/etc/cloud/cloud.cfg"
+    regexp: "^fqdn:.*$"
+    insertafter: "^preserve_hostname:.*$"
+    line: "fqdn: {{ fqdn }}"
