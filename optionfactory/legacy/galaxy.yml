@@ -1,0 +1,15 @@
+namespace: optionfactory
+name: legacy
+version: 1.0.0
+readme: README.md
+authors:
+- Multiple <info@optionfactory.net>
+description: Legacy roles grouped together for ease of maintenance
+license:
+- BSD
+dependencies: {}
+repository: http://github.com/optionfactory/ansible-optionfactory-collections
+documentation: http://github.com/optionfactory/ansible-optionfactory-collections
+homepage: http://github.com/optionfactory/ansible-optionfactory-collections
+issues: http://github.com/optionfactory/ansible-optionfactory-collections
+
