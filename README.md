@@ -1,10 +1,10 @@
-# Ansible opfa collections
+# Ansible OptionFactory collections
 
 This is a set of collections used by OptionFactory Ansible manifests.
 
 ## Collections
 
-- [Legacy](opfa/legacy): collects all legacy roles for ease of maintenance and to facilitate transition from roles to collections.
+- [Legacy](optionfactory/legacy): collects all legacy roles for ease of maintenance and to facilitate transition from roles to collections.
 
 # Requirements
 
@@ -14,7 +14,7 @@ Collections can be used by Ansible &gt;= 2.9, but Ansible &gt;= 2.11 is recommen
 
 Roles in a collection have to follow a stricter naming convention comparing to standard roles:
 
-- folder names in a role path are used to define its fully qualified name, so a path like opfa/legacy/roles/os_base will result in opfa.legacy.os_base.
+- folder names in a role path are used to define its fully qualified name, so a path like optionfactory/legacy/roles/os_base will result in optionfactory.legacy.os_base.
 - all path elements (namespace, collection, role) are limited to lowercase alphanumeric characters plus underscore, and they must start with an alpha character
 
 For more information: https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html#roles-directory
@@ -30,7 +30,7 @@ If the collections is not published on a known server, use its github repository
 ```yml
   roles:
   collections:
-    - name: https://github.com/optionfactory/ansible-blu-istanbul
+    - name: https://github.com/optionfactory/ansible-optionfactory-collections
       type: git
       version: tag | branch
 ```
@@ -52,7 +52,7 @@ To use a role in a collection you need to refer to it with its fully qualified n
 
 ```yml
   roles:
-    - role: opfa.legacy.journald
+    - role: optionfactory.legacy.journald
       vars:
         forward_to_syslog: no
 ```
@@ -61,7 +61,7 @@ To use a role in a collection you need to refer to it with its fully qualified n
   tasks:
     - name: configure journald
       include_role: 
-        name: opfa.legacy.journald
+        name: optionfactory.legacy.journald
       vars:
         forward_to_syslog: no
 ```
@@ -70,7 +70,7 @@ It is possible to declare a collection to use all its roles without prefixes:
 
 ```yml
   collections:
-    - opfa.legacy
+    - optionfactory.legacy
   roles:
     - role: journald
       vars:
