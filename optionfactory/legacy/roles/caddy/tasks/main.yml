@@ -22,6 +22,8 @@
   file:
     dest: "{{ item }}"
     state: directory
+    owner: caddy
+    group: root
   with_items:
     - "{{ caddy_install_dir }}"
     - "{{ caddy_config_dir }}"
