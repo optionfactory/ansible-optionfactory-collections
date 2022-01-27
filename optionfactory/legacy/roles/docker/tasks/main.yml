@@ -1,0 +1,36 @@
+---
+- name: remove old docker repo
+  apt_repository:
+    filename: dockerrepo
+    state: absent
+    repo: "deb https://apt.dockerproject.org/repo ubuntu-{{ ansible_distribution_release }} main"
+- name: add docker repo key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    id: 0EBFCD88
+- name: add docker repo
+  apt_repository:
+    filename: dockerrepo
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+- name: update apt cache
+  shell: apt update
+- name: remove old docker-engine
+  apt:
+    name: docker-engine
+    state: absent
+- name: install docker-ce
+  apt:
+    name: docker-ce
+    state: present
+- group:
+    name: docker 
+    state: present
+- user:
+    name: ubuntu
+    append: yes
+    groups: docker    
+- name: ensure base services are started
+  service:
+    name: docker
+    state: started
+    enabled: yes
