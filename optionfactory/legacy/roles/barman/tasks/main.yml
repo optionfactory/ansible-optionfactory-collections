@@ -72,6 +72,6 @@
     template:
       dest: ~/.aws/config
       src: aws_config.j2
-  when: "{{ upload_to_s3 }}"
+  when: "upload_to_s3"
   become: yes
   become_user: barman
