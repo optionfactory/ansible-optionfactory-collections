@@ -1,4 +1,4 @@
 ---
 - name: stop barman
-  command: killall barman
+  command: killall barman # FIXME: broken, barman process are executed as "/usr/bin/python3 /usr/bin/barman" killall barman does not work
   ignore_errors: yes
