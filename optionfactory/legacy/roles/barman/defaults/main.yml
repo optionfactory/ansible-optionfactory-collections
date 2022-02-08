@@ -1,3 +1,4 @@
 ---
 upload_to_s3: false
 pg_login_password: 
+enable_wal_compression: false
