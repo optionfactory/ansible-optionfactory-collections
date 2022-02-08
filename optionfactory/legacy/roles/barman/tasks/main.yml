@@ -10,10 +10,8 @@
   shell: apt update
 - name: install barman
   apt:
-    name: "{{ item }}"
+    name: "barman"
     state: present
-  with_items:
-    - barman
 - name: barman global configuration
   template:
     src: barman.conf.j2
