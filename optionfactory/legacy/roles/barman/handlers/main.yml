@@ -1,4 +1,5 @@
 ---
 - name: stop barman
-  command: killall barman # FIXME: broken, barman process are executed as "/usr/bin/python3 /usr/bin/barman" killall barman does not work
+  command:  'barman receive-wal --stop {{ item.target_name }}'
   ignore_errors: yes
+  with_items: "{{ hosts }}"
