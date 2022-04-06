@@ -77,3 +77,50 @@ It is possible to declare a collection to use all its roles without prefixes:
         forward_to_syslog: no
 ```
 
+
+# Migration steps from roles to collections
+
+* change requirement file to use collection instead roles
+* install collections instead roles:
+* in playbook file change role name convention (the character `-` is not supported anymore)
+* in playbook file define namespace or declare collections terms.
+
+## Example of migration
+Makefile:
+```
+ install-roles:
+-       ansible-galaxy install --roles-path ansible/roles -r ansible/ansible-galaxy.yml --force
++       ansible-galaxy collection install --collections-path ansible/collections -r ansible/ansible-galaxy.yml
+
+```
+requirement file (ansible-galaxy.yml):
+```
+ ---
+-- src: https://bitbucket.org/optionfactory/docker.git
+-  scm: git
+-- src: https://bitbucket.org/optionfactory/docker-service.git
+-  scm: git
+-- src: https://bitbucket.org/optionfactory/ubuntu-aws.git
+-  scm: git
+-
++collections:
++  - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory/legacy
++    type: git
++    version: master
+
+```
+playbook:
+```
+ - all
+   remote_user: ubuntu
+   become: yes
++  collections: optionfactory.legacy
++
+   roles:
+-    - role: ubuntu-aws
++    - role: ubuntu_aws
+     - role: docker
+-    - role: docker-service
++    - role: docker_service
+[...]
+```
