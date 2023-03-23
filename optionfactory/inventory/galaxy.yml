@@ -1,0 +1,15 @@
+namespace: optionfactory
+name: inventory
+version: 1.0.0
+readme: README.md
+authors:
+- Multiple <info@optionfactory.net>
+description: Handles ansible and terraform inventories to generate SSH configuration
+license:
+- BSD
+dependencies: {}
+repository: http://github.com/optionfactory/ansible-optionfactory-collections
+documentation: http://github.com/optionfactory/ansible-optionfactory-collections
+homepage: http://github.com/optionfactory/ansible-optionfactory-collections
+issues: http://github.com/optionfactory/ansible-optionfactory-collections
+

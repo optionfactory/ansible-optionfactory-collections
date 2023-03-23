@@ -1,0 +1,24 @@
+---
+- name: "Ensure that configuration directory exists"
+  file:
+    path: "{{ ssh_configuration_path }}"
+    state: directory
+    mode: "0744"
+  run_once: true
+- name: "Ensure that configuration directory is included in ~/.ssh/config"
+  lineinfile:
+    path: "{{ ssh_user_path }}/config"
+    regexp: "^Include {{ ssh_configuration_dir }}/\\*"
+    line: "Include {{ ssh_configuration_dir }}/*"
+    state: present
+    insertbefore: BOF
+  run_once: true
+- name: "Append installation configuration in project configuration"
+  blockinfile:
+    path: "{{ ssh_configuration_path }}/{{ project }}"
+    block: "{{ lookup('template', 'templates/installation-sshconfig.j2') }}"
+    marker: "##### {mark} Ansible managed block for {{ installation }}"
+    mode: "0600"
+    owner: "{{ current_user }}"
+    create: true
+  run_once: true

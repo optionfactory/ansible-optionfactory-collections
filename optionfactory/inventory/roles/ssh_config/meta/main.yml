@@ -1,0 +1,10 @@
+galaxy_info:
+  author: optionfactory
+  description: Creates SSH config from ansible inventory
+  company: optionfactory
+  license: BSD
+  min_ansible_version: "2.7"
+  platforms:
+  - name: Ubuntu
+  galaxy_tags: []
+dependencies: []

@@ -1,0 +1,40 @@
+---
+argument_specs:
+  main:
+    short_description: "Creates SSH Configuration using Ansible inventory"
+    options:
+      project_name:
+        type: "str"
+        required: true
+        description: "Project name to use in configuration file and hostnames. Must be lowercase and without spaces."
+      installation:
+        type: "str"
+        required: true
+        description: "Tenancy and environment separated by dash (Es. 'customer-staging') or just environment (es. 'staging')"
+      skip_groups:
+        type: "list"
+        required: false
+        default: []
+        elements: "str"
+        description: "Parameter to use to ignore groups in configuration"
+      bastion_host_group:
+        type: "str"
+        required: false
+        default: "bastion"
+        description: "Uses first host in this group as a bastion host if present"
+      ssh_identity_file_parameter:
+        type: "str"
+        required: false
+        default: "ssh_identity_file"
+        description: "Parameter that contains the SSH identity file to use"
+      node_index_parameter:
+        type: "str"
+        required: false
+        default: "node_index"
+        description: "Parameter that contains the node_index for nodes that resolve to the same hostname"
+      host_alias_parameter:
+        type: "str"
+        required: false
+        default: "host_alias"
+        description: "Parameter to use to set a specific hostname overriding convention"
+      
