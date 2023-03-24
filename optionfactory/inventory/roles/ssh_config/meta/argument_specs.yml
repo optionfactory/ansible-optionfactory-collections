@@ -22,11 +22,6 @@ argument_specs:
         required: false
         default: "bastion"
         description: "Uses first host in this group as a bastion host if present"
-      ssh_identity_file_parameter:
-        type: "str"
-        required: false
-        default: "ssh_identity_file"
-        description: "Parameter that contains the SSH identity file to use"
       node_index_parameter:
         type: "str"
         required: false

@@ -1,9 +1,9 @@
 
 {% if bastion_host is defined and bastion_host|length %}
-Host {{ project }}-{{ installation }}-bastion
+Host {{ project_name }}-{{ installation }}-bastion
 	Hostname {{ bastion_host }}
 	User {{ hostvars[bastion_host].server_user | default("ubuntu") }}
-	IdentityFile {{ hostvars[bastion_host][ssh_identity_file_parameter] }}
+	IdentityFile {{ hostvars[bastion_host].ansible_ssh_private_key_file }}
 
 {% endif %}
 {% for item in ssh_hosts %}
@@ -12,19 +12,19 @@ Host {{ hostvars[item][host_alias_parameter] }}
 	Hostname {{ item }}
 	IdentityFile {{ hostvars[item][ssh_identity_file_parameter] }}
 	User {{ hostvars[item].server_user | default("ubuntu") }}
-	{% if bastion_host is defined and bastion_host|length %}ProxyJump {{ project }}-{{ installation }}-bastion
+	{% if bastion_host is defined and bastion_host|length %}ProxyJump {{ project_name }}-{{ installation }}-bastion
 	{% endif %}
 
 {% else %}
 {% for group, group_hosts in groups.items() %}
 {% if not group in skip_groups %}
 {% if item in group_hosts and group != 'all' %}
-Host  {{ project }}-{{ installation }}-{{ group }}{% if hostvars[item][node_index_parameter] is defined %}-{{ hostvars[item][node_index_parameter] }}{% endif %}
+Host  {{ project_name }}-{{ installation }}-{{ group }}{% if hostvars[item][node_index_parameter] is defined %}-{{ hostvars[item][node_index_parameter] }}{% endif %}
 
 	Hostname {{ item }}
-	IdentityFile {{ hostvars[item][ssh_identity_file_parameter] }}
+	IdentityFile {{ hostvars[item].ansible_ssh_private_key_file }}
 	User {{ hostvars[item].server_user | default("ubuntu") }}
-	{% if bastion_host is defined and bastion_host|length %}ProxyJump {{ project }}-{{ installation }}-bastion
+	{% if bastion_host is defined and bastion_host|length %}ProxyJump {{ project_name }}-{{ installation }}-bastion
 	{% endif %}
 
 {% endif %}

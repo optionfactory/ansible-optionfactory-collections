@@ -1,6 +1,5 @@
 ---
   bastion_host_group: "bastion"
-  ssh_identity_file_parameter: "ssh_identity_file"
   node_index_parameter: "node_index"
   host_alias_parameter: "host_alias"
 
@@ -14,5 +13,4 @@
   bastion_host: "{{ query('inventory_hostnames', bastion_host_group)[0] | default(None) }}"
   ssh_hosts: "{{ query('inventory_hostnames', 'all:!' + bastion_host_group) }}"
 
-  installation: "{{'-'.join([tenancy, environment] | select('defined')) }}"
 

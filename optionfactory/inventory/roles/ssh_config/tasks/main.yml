@@ -15,7 +15,7 @@
   run_once: true
 - name: "Append installation configuration in project configuration"
   blockinfile:
-    path: "{{ ssh_configuration_path }}/{{ project }}"
+    path: "{{ ssh_configuration_path }}/{{ project_name }}"
     block: "{{ lookup('template', 'templates/installation-sshconfig.j2') }}"
     marker: "##### {mark} Ansible managed block for {{ installation }}"
     mode: "0600"
