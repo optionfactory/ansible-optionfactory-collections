@@ -1,0 +1,11 @@
+galaxy_info:
+  author: optionfactory
+  description: systemd docker machines services
+  company: optionfactory
+  license: BSD
+  min_ansible_version: "2.7"
+  platforms:
+  - name: Ubuntu
+  - name: Debian
+  galaxy_tags: []
+dependencies: []
