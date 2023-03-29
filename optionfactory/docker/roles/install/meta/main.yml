@@ -1,0 +1,11 @@
+galaxy_info:
+  author: optionfactory
+  description: Installs docker
+  company: optionfactory
+  license: BSD
+  min_ansible_version: "2.7"
+  platforms:
+  - name: Ubuntu
+  - name: Debian
+  galaxy_tags: []
+dependencies: []
