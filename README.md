@@ -5,7 +5,9 @@ This is a set of collections used by OptionFactory Ansible manifests.
 ## Collections
 
 - [Legacy](optionfactory/legacy): collects all legacy roles for ease of maintenance and to facilitate transition from roles to collections.
-
+- [Docker](optionfactory/docker): collects roles to handle docker installation and configuration.
+- [Legacy](optionfactory/system): collects roles to handle system configuration.
+ 
 # Requirements
 
 Collections can be used by Ansible &gt;= 2.9, but Ansible &gt;= 2.11 is recommended
