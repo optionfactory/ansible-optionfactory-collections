@@ -25,12 +25,11 @@
     ansible.builtin.apt_repository:
       filename: dockerrepo
       repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
-- name: update apt cache
-  ansible.builtin.shell: apt update
 - name: install docker-ce
   ansible.builtin.apt:
     name: docker-ce
     state: present
+    update_cache: yes
 - ansible.builtin.group:
     name: docker 
     state: present
