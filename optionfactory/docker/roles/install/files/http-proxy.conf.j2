@@ -1,4 +1,7 @@
 [Service]
-{% if (docker_http_proxy is defined) and (docker_http_proxy|length > 0) %}Environment='HTTP_PROXY={{ docker_http_proxy }}'{% endif %}
-{% if (docker_https_proxy is defined) and (docker_https_proxy|length > 0) %}Environment='HTTPS_PROXY={{ docker_https_proxy }}'{% endif %}
-{% if (docker_no_proxy is defined) and (docker_no_proxy|length > 0) %}Environment='NO_PROXY={{ docker_no_proxy }}'{% endif %}
+{% if ((docker_http_proxy is defined) and (docker_http_proxy|length > 0)) %}Environment='HTTP_PROXY={{ docker_http_proxy }}'
+{% endif %}
+{% if ((docker_https_proxy is defined) and (docker_https_proxy|length > 0)) %}Environment='HTTPS_PROXY={{ docker_https_proxy }}'
+{% endif %}
+{% if ((docker_no_proxy is defined) and (docker_no_proxy|length > 0)) %}Environment='NO_PROXY={{ docker_no_proxy }}'
+{% endif %}
