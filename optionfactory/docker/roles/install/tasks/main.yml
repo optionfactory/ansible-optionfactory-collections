@@ -41,7 +41,7 @@
         mode: '0755'
     - name: Create docker proxy server configuration
       ansible.builtin.template:
-        src: files/http-proxy-conf.j2
+        src: files/http-proxy.conf.j2
         dest: /etc/systemd/system/docker.service.d/http-proxy.conf
         owner: root
         mode: '0644'
