@@ -31,7 +31,7 @@
     state: present
     update_cache: true
 - name: Configure http/https proxy for docker service
-  when: ((docker_http_proxy is defined) and (docker_http_proxy|length > 0)) or (docker_https_proxy is defined) and (docker_https_proxy|length > 0))
+  when: ((docker_http_proxy is defined) and (docker_http_proxy|length > 0)) or ((docker_https_proxy is defined) and (docker_https_proxy|length > 0))
   block:
     - name: Create docker service configuration directory
       ansible.builtin.file:
