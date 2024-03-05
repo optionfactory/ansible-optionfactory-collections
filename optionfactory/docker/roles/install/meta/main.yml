@@ -2,7 +2,7 @@ galaxy_info:
   author: optionfactory
   description: Installs docker
   company: optionfactory
-  license: BSD
+  license: BSD-3-Clause
   min_ansible_version: "2.7"
   platforms:
   - name: Ubuntu

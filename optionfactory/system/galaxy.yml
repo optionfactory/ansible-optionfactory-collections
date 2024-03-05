@@ -1,12 +1,12 @@
 namespace: optionfactory
 name: system
-version: 1.0.0
+version: 2.0.0
 readme: README.md
 authors:
 - Multiple <info@optionfactory.net>
 description: Handles system configuration
 license:
-- BSD
+- BSD-3-Clause
 dependencies: {}
 repository: http://github.com/optionfactory/ansible-optionfactory-collections
 documentation: http://github.com/optionfactory/ansible-optionfactory-collections
