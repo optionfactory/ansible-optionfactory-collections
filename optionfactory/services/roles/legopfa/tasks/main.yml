@@ -1,0 +1,33 @@
+- name: Configuring legopfa-renewal service
+  register: legopfa_renewal_service
+  copy:
+    dest: "/etc/systemd/system/legopfa-renewal.service"
+    mode: 0644
+    content: |
+      [Unit]
+      Description=legopfa certificates renewal service
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/docker exec {{ container_name }} /legopfa-all
+- name: Configuring legopfa-renewal timer
+  register: legopfa_renewal_timer
+  copy:
+    dest: "/etc/systemd/system/legopfa-renewal.timer"
+    mode: 0644
+    content: |
+      [Unit]
+      Description=legopfa certificates renewal timer
+      [Timer]
+      OnBootSec=15min
+      OnUnitActiveSec=1w
+      [Install]
+      WantedBy=timers.target
+- name: Reloading deamons if legopfa-renewal timer or service has changed
+  systemd:
+    daemon_reload: true
+  when: legopfa_renewal_timer.changed or legopfa_renewal_service.changed
+- name: Ensuring legopfa-renewal timer is started
+  service:
+    name: "legopfa-renewal.timer"
+    state: started
+    enabled: true

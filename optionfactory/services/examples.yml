@@ -1,0 +1,10 @@
+- hosts:
+    - 127.0.0.1
+  connection: local
+  become: true
+  tasks:
+    - name: "can configure legopfa service and timer"
+      include_role:
+        name: legopfa
+      vars:
+        container_name: "nginx-project"

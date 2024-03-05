@@ -1,0 +1,12 @@
+argument_specs:
+  main:
+    short_description: "handes systemd units for docker containers"
+    options:
+      service_name:
+        type: "str"
+        required: true
+        description: "name of the service. spawned container name will have the same name"
+      service_args:
+        type: "str"
+        required: true
+        description: "arguments to be passed to docker run in systemd's unit ExecStart"

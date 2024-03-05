@@ -1,0 +1,9 @@
+argument_specs:
+  main:
+    short_description: "legopfa service and timer configuration"
+    description: "Remember that this role does not handle legopfa configuration"
+    options:
+      container_name:
+        type: "str"
+        required: true
+        description: "Name of the container used to run /legopfa-all, typically an optionfactory/*-nginx120 image"
