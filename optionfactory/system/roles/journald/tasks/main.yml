@@ -1,20 +1,15 @@
 ---
-- name: make journald persistent (/var/log/journal)
+- name: ensuring /var/log/journal exists
   ansible.builtin.file:
     dest: "/var/log/journal"
     state: directory
     owner: root
     mode: 0755
   notify: "restart journald"
-- name: allow 1000 messages per second on journald
-  ansible.builtin.lineinfile:
+- name: configuring journald
+  when: (configuration is defined)
+  copy:
+    mode: 0644
     dest: /etc/systemd/journald.conf
-    regexp: '^ *RateLimitInterval='
-    line: 'RateLimitInterval=1s'
-  notify: "restart journald"
-- name: set journald forward to Syslog => {{ forward_to_syslog }}
-  ansible.builtin.lineinfile:
-    dest: /etc/systemd/journald.conf
-    regexp: '^ *ForwardToSyslog='
-    line: 'ForwardToSyslog={{ forward_to_syslog }}'
+    content: "{{ configuration }}"
   notify: "restart journald"

@@ -5,8 +5,8 @@ galaxy_info:
   license: BSD-3-Clause
   min_ansible_version: "1.2"
   platforms:
-  - name: Debian
-  - name: Ubuntu
-  - name: SLES
+    - name: Debian
+    - name: Ubuntu
+    - name: SLES
   galaxy_tags: []
 dependencies: []

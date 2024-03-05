@@ -3,13 +3,12 @@ name: system
 version: 2.0.0
 readme: README.md
 authors:
-- Multiple <info@optionfactory.net>
+  - Multiple <info@optionfactory.net>
 description: Handles system configuration
 license:
-- BSD-3-Clause
+  - BSD-3-Clause
 dependencies: {}
 repository: http://github.com/optionfactory/ansible-optionfactory-collections
 documentation: http://github.com/optionfactory/ansible-optionfactory-collections
 homepage: http://github.com/optionfactory/ansible-optionfactory-collections
 issues: http://github.com/optionfactory/ansible-optionfactory-collections
-

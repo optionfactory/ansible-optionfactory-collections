@@ -1,16 +1,11 @@
 ---
-  bastion_host_group: "bastion"
-  node_index_parameter: "node_index"
-  host_alias_parameter: "host_alias"
-
-  skip_groups: []
-
-  current_user: "{{ lookup('env', 'USER') }}"
-  ssh_user_path: "/home/{{ current_user }}/.ssh"
-  ssh_configuration_dir: "config.d"
-  ssh_configuration_path: "{{ ssh_user_path }}/{{ ssh_configuration_dir }}"
-  
-  bastion_host: "{{ query('inventory_hostnames', bastion_host_group)[0] | default(None) }}"
-  ssh_hosts: "{{ query('inventory_hostnames', 'all:!' + bastion_host_group) }}"
-
-
+bastion_host_group: "bastion"
+node_index_parameter: "node_index"
+host_alias_parameter: "host_alias"
+skip_groups: []
+current_user: "{{ lookup('env', 'USER') }}"
+ssh_user_path: "/home/{{ current_user }}/.ssh"
+ssh_configuration_dir: "config.d"
+ssh_configuration_path: "{{ ssh_user_path }}/{{ ssh_configuration_dir }}"
+bastion_host: "{{ query('inventory_hostnames', bastion_host_group)[0] | default(None) }}"
+ssh_hosts: "{{ query('inventory_hostnames', 'all:!' + bastion_host_group) }}"

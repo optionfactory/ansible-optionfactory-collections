@@ -5,6 +5,6 @@ galaxy_info:
   license: BSD-3-Clause
   min_ansible_version: "2.7"
   platforms:
-  - name: Ubuntu
+    - name: Ubuntu
   galaxy_tags: []
 dependencies: []
