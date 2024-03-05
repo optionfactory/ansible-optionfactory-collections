@@ -50,10 +50,6 @@
         name: docker.service
         daemon_reload: true
         state: restarted
-- name: Ensure that docker group is present
-  ansible.builtin.group:
-    name: docker
-    state: present
 - name: Ubuntu user
   ansible.builtin.user:
     name: ubuntu
