@@ -1,5 +1,0 @@
----
-- name: install PS1
-  copy:
-    dest: /etc/profile.d/ps1.sh
-    src: files/ps1.sh

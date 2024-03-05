@@ -1,7 +1,0 @@
-ansible-ntpd
-=========
-
-License
--------
-
-BSD

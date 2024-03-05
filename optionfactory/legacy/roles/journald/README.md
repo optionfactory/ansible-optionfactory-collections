@@ -1,7 +1,0 @@
-journald
-=========
-
-License
--------
-
-BSD

@@ -1,7 +1,0 @@
-os-base
-=========
-
-License
--------
-
-BSD

@@ -1,5 +1,0 @@
----
-- name: stop barman
-  command:  'barman receive-wal --stop {{ item.target_name }}'
-  ignore_errors: yes
-  with_items: "{{ hosts }}"

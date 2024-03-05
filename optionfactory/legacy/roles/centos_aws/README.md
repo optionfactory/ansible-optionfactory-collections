@@ -1,8 +1,0 @@
-centos-aws
-=========
-
-License
--------
-
-BSD
-

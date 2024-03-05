@@ -1,8 +1,0 @@
-centos-docker
-=========
-
-License
--------
-
-BSD
-

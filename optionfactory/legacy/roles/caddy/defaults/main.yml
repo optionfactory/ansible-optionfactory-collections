@@ -1,5 +1,0 @@
----
-caddy_install_dir: /opt/caddy
-caddy_config_dir: /etc/caddy
-caddy_data_dir: "{{ caddy_install_dir }}/.caddy"
-use_systemd_capabilities: false

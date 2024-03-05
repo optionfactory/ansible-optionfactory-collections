@@ -1,7 +1,0 @@
-docker-service
-=========
-
-License
--------
-
-BSD

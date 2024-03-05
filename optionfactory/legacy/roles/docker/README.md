@@ -1,8 +1,0 @@
-docker
-=========
-
-License
--------
-
-BSD
-
