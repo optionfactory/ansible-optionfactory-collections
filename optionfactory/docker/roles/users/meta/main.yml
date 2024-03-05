@@ -1,0 +1,11 @@
+galaxy_info:
+  author: optionfactory
+  description: Adds users to the docker group
+  company: optionfactory
+  license: BSD-3-Clause
+  min_ansible_version: "2.7"
+  platforms:
+    - name: Ubuntu
+    - name: Debian
+  galaxy_tags: []
+dependencies: []

@@ -1,0 +1,23 @@
+---
+- name: ensuring group "docker-machines" exists
+  group:
+    state: present
+    name: docker-machines
+    gid: 950
+- name: ensuring user "docker-machines" exists
+  user:
+    state: present
+    name: docker-machines
+    system: true
+    uid: 950
+    group: docker-machines
+- name: ensuring {{ ansible_user }} is in docker group
+  user:
+    name: "{{ ansible_user }}"
+    append: true
+    groups: docker
+- name: ensure {{ ansible_user }} is in group docker-machines
+  user:
+    name: "{{ ansible_user }}"
+    append: true
+    groups: docker-machines

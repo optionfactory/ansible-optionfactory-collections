@@ -1,0 +1,13 @@
+- hosts:
+    - 127.0.0.1
+  connection: local
+  become: true
+  tasks:
+    - name: "can configure journald using system.journald"
+      include_role:
+        name: journald
+      vars:
+        configuration: "empty"
+    - name: "can install ps1 using system.ps1"
+      include_role:
+        name: ps1

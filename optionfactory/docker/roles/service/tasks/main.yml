@@ -1,10 +1,11 @@
 ---
-- name: "{{ service_name }} | create docker service"
+- name: "creating systemd unit for {{ service_name }}"
   ansible.builtin.template:
     src: service.j2
     dest: "/etc/systemd/system/{{ service_name }}.service"
+    mode: 0644
   register: container_service
-- name: "{{ service_name }} | systemctl daemon reload"
+- name: "systemd unit {{ service_name }} changed: reloading daemons"
   ansible.builtin.systemd:
     daemon_reload: true
   when: container_service.changed
