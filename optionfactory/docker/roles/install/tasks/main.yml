@@ -50,20 +50,3 @@
         name: docker.service
         daemon_reload: true
         state: restarted
-- name: Ubuntu user
-  ansible.builtin.user:
-    name: ubuntu
-    append: true
-    groups: docker
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 20
-- name: Debian user
-  ansible.builtin.user:
-    name: admin
-    append: true
-    groups: docker
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version|int >= 11
-- name: Ensure base services are started
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: true
