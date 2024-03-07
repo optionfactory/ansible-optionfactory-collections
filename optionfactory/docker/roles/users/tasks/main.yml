@@ -10,7 +10,8 @@
     name: docker-machines
     system: true
     create_home: false
-    home: /usr/sbin/nologin
+    home: /
+    shell: /usr/sbin/nologin    
     uid: 950
     group: docker-machines
 - name: ensuring ansible_user is in "docker" group
