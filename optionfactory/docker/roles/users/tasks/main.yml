@@ -11,12 +11,12 @@
     system: true
     uid: 950
     group: docker-machines
-- name: ensuring {{ ansible_user }} is in docker group
+- name: "ensuring {{ ansible_user }} is in docker group"
   user:
     name: "{{ ansible_user }}"
     append: true
     groups: docker
-- name: ensure {{ ansible_user }} is in group docker-machines
+- name: "ensure {{ ansible_user }} is in group docker-machines"
   user:
     name: "{{ ansible_user }}"
     append: true
