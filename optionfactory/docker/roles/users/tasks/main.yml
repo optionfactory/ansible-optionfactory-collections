@@ -9,14 +9,15 @@
     state: present
     name: docker-machines
     system: true
+    create_home: false
     uid: 950
     group: docker-machines
-- name: "ensuring ansible_user is in docker group"
+- name: ensuring ansible_user is in "docker" group
   user:
     name: "{{ ansible_user }}"
     append: true
     groups: docker
-- name: "ensuring ansible_user is in docker-machines group"
+- name: ensuring ansible_user is in docker-machines group
   user:
     name: "{{ ansible_user }}"
     append: true
