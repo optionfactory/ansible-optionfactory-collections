@@ -10,8 +10,8 @@
     daemon_reload: true
   when: current_service.changed
 - name: "notifying service changes?"
-  when: ( notify is defined and current_service.changed )
-  changed_when: true
+  when: ( notify is defined )
+  changed_when: current_service.changed
   debug:
     msg: "notifying service changes"
   notify: "{{ notify }}"
