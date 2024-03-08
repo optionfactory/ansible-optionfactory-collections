@@ -4,8 +4,14 @@
     src: service.j2
     dest: "/etc/systemd/system/{{ service_name }}.service"
     mode: 0644
-  register: container_service
+  register: current_service
 - name: "systemd unit {{ service_name }} changed: reloading daemons"
   ansible.builtin.systemd:
     daemon_reload: true
-  when: container_service.changed
+  when: current_service.changed
+- name: "notifying service changes?"
+  when: ( notify is defined and current_service.changed )
+  changed_when: true
+  debug:
+    msg: "notifying service changes"
+  notify: "{{ notify }}"

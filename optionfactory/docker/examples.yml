@@ -1,8 +1,18 @@
 - hosts:
     - 127.0.0.1
   connection: local
-  become: true
   tasks:
+    - name: "can install a docker.service"
+      include_role:
+        name: service
+      vars:
+        notify: debian-project-service-changed
+        service_name: debian-project
+        service_args: >
+          debian:12
+    - name: globals
+      debug:
+        var: vars['container_service']
     - name: "can install docker with docker.install"
       include_role:
         name: install
@@ -13,6 +23,12 @@
       include_role:
         name: service
       vars:
+        notify: debian-project-service-changed
         service_name: debian-project
         service_args: >
           debian:12
+  handlers:
+    - name: debian-project-service-changed
+      listen: debian-project-service-changed
+      debug:
+        msg: "debian project changed"
