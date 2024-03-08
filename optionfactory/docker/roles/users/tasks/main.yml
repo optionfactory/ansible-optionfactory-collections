@@ -11,16 +11,16 @@
     system: true
     create_home: false
     home: /
-    shell: /usr/sbin/nologin    
+    shell: /usr/sbin/nologin
     uid: 950
     group: docker-machines
 - name: ensuring ansible_user is in "docker" group
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ ansible_env.SUDO_USER }}"
     append: true
     groups: docker
 - name: ensuring ansible_user is in docker-machines group
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ ansible_env.SUDO_USER }}"
     append: true
     groups: docker-machines
