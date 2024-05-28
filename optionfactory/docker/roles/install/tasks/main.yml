@@ -2,11 +2,12 @@
 - name: Install Docker CentOS
   when: ansible_distribution == "CentOS"
   block:
-    - name: Add docker repo
+    - name: Add docker repo (CentOS)
       ansible.builtin.yum_repository:
         name: dockerrepo
+        description: Docker repo
         baseurl: "https://download.docker.com/linux/centos/docker-ce.repo"
-    - name: Install docker-ce
+    - name: Install docker-ce (CentOS)
       ansible.builtin.yum:
         name: docker-ce
         state: present
@@ -17,10 +18,10 @@
         state: started
         enabled: true
 
-- name: Install Docker Debian od Ubuntu
+- name: Install Docker Debian or Ubuntu
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
   block:
-    - name: Add docker repo key
+    - name: Add docker repo key (Debian or Ubuntu)
       ansible.builtin.copy:
         mode: '0644'
         dest: /etc/apt/trusted.gpg.d/docker.asc
@@ -87,11 +88,11 @@
           YT90qFF93M3v01BbxP+EIY2/9tiIPbrd
           =0YYh
           -----END PGP PUBLIC KEY BLOCK-----
-    - name: Add docker repository
+    - name: Add docker repository (Debian or Ubuntu)
       ansible.builtin.apt_repository:
         filename: dockerrepo
         repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-    - name: Install docker-ce
+    - name: Install docker-ce (Debian or Ubuntu)
       ansible.builtin.apt:
         name: docker-ce
         state: present
