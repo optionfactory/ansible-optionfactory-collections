@@ -12,7 +12,7 @@
         name: docker-ce
         state: present
         update_cache: true
-    - name: Ensure docker service started
+    - name: Ensure docker service started (CentOS)
       ansible.builtin.service:
         name: docker.service
         state: started
