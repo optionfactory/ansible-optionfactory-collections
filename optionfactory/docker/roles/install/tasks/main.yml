@@ -3,10 +3,10 @@
   when: ansible_distribution == "CentOS"
   block:
     - name: Add docker repo (CentOS)
-      ansible.builtin.yum_repository:
-        name: dockerrepo
-        description: Docker repo
-        baseurl: "https://download.docker.com/linux/centos/docker-ce.repo"
+      ansible.builtin.get_url:
+        dest: /etc/yum.repos.d/
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        mode: '0644'
     - name: Install docker-ce (CentOS)
       ansible.builtin.yum:
         name: docker-ce
