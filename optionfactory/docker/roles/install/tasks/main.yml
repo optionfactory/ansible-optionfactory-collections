@@ -1,18 +1,18 @@
 ---
-- name: Install Docker CentOS
-  when: ansible_distribution == "CentOS"
+- name: Install Docker CentOS or RedHat
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
   block:
-    - name: Add docker repo (CentOS)
+    - name: Add docker repo 
       ansible.builtin.get_url:
         dest: /etc/yum.repos.d/
         url: https://download.docker.com/linux/centos/docker-ce.repo
         mode: '0644'
-    - name: Install docker-ce (CentOS)
+    - name: Install docker-ce
       ansible.builtin.yum:
         name: docker-ce
         state: present
         update_cache: true
-    - name: Ensure docker service started (CentOS)
+    - name: Ensure docker service started
       ansible.builtin.service:
         name: docker.service
         state: started
