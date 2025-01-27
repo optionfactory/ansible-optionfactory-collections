@@ -1,6 +1,6 @@
 ---
-- name: Install Docker CentOS or RedHat
-  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+- name: Install Docker CentOS or RedHat or Roky Linux
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" or ansible_distribution == "Rocky"
   block:
     - name: Add docker repo 
       ansible.builtin.get_url:
