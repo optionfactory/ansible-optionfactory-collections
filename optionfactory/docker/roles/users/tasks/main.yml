@@ -16,11 +16,11 @@
     group: docker-machines
 - name: ensuring ansible_user is in "docker" group
   user:
-    name: "{{ user | ansible_env.SUDO_USER }}"
+    name: "{{ user | default(ansible_env.SUDO_USER) }}"
     append: true
     groups: docker
 - name: ensuring ansible_user is in docker-machines group
   user:
-    name: "{{ user | ansible_env.SUDO_USER }}"
+    name: "{{ user | default(ansible_env.SUDO_USER) }}"
     append: true
     groups: docker-machines
