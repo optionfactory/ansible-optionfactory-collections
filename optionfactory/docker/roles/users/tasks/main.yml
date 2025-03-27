@@ -14,13 +14,29 @@
     shell: /usr/sbin/nologin
     uid: 950
     group: docker-machines
-- name: ensuring ansible_user is in "docker" group
-  user:
-    name: "{{ ansible_env.SUDO_USER }}"
-    append: true
-    groups: docker
-- name: ensuring ansible_user is in docker-machines group
-  user:
-    name: "{{ ansible_env.SUDO_USER }}"
-    append: true
-    groups: docker-machines
+- block:
+    - name: ensuring ansible_user is in "docker" group
+      user:
+        name: "{{ ansible_env.SUDO_USER }}"
+        append: true
+        groups: docker
+      when: ( user is undefined )
+    - name: ensuring custom user is in "docker" group
+      user:
+        name: "{{ user }}"
+        append: true
+        groups: docker
+      when: ( user is defined )
+- block:
+    - name: ensuring ansible_user is in docker-machines group
+      user:
+        name: "{{ ansible_env.SUDO_USER }}"
+        append: true
+        groups: docker-machines
+      when: ( user is undefined )
+    - name: ensuring ansible_user is in docker-machines group
+      user:
+        name: "{{ user }}"
+        append: true
+        groups: docker-machines
+      when: ( user is defined )
