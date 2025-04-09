@@ -1,5 +1,5 @@
 ---
-- name: Install Docker CentOS or RedHat or Roky Linux
+- name: Install Docker CentOS or RedHat or Rocky Linux
   when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" or ansible_distribution == "Rocky"
   block:
     - name: Add docker repo 
