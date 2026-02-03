@@ -10,7 +10,8 @@ argument_specs:
         type: "str"
         required: true
         description: "arguments to be passed to docker run in systemd's unit ExecStart"
-      notify:
+      notify_key:
         type: "str"
         required: false
         description: "Optional notification on service configuration changes"
+        
