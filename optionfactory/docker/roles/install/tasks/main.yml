@@ -2,13 +2,13 @@
 - name: Install Docker CentOS or RedHat or Rocky Linux
   when: ansible_facts["distribution"] == "CentOS" or ansible_facts["distribution"] == "RedHat" or ansible_facts["distribution"] == "Rocky"
   block:
-    - name: Add docker repo 
+    - name: Add docker repo
       ansible.builtin.get_url:
         dest: /etc/yum.repos.d/
         url: https://download.docker.com/linux/centos/docker-ce.repo
         mode: '0644'
     - name: Install docker-ce
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: docker-ce
         state: present
         update_cache: true

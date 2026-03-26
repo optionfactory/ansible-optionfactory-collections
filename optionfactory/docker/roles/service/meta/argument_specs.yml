@@ -1,6 +1,6 @@
 argument_specs:
   main:
-    short_description: "handes systemd units for docker containers"
+    short_description: "handles systemd units for docker containers"
     options:
       service_name:
         type: "str"
@@ -14,4 +14,3 @@ argument_specs:
         type: "str"
         required: false
         description: "Optional notification on service configuration changes"
-        

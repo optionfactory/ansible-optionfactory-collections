@@ -1,11 +1,11 @@
 ---
-- name: ensuring group "docker-machines" exists
-  group:
+- name: Ensuring group "docker-machines" exists
+  ansible.builtin.group:
     state: present
     name: docker-machines
     gid: 950
-- name: ensuring user "docker-machines" exists
-  user:
+- name: Ensuring user "docker-machines" exists
+  ansible.builtin.user:
     state: present
     name: docker-machines
     system: true
@@ -14,13 +14,13 @@
     shell: /usr/sbin/nologin
     uid: 950
     group: docker-machines
-- name: ensuring user is in "docker" group
-  user:
+- name: Ensuring user is in "docker" group
+  ansible.builtin.user:
     name: "{{ user | default(ansible_facts['env'].SUDO_USER) }}"
     append: true
     groups: docker
-- name: ensuring ansible_user is in docker-machines group
-  user:
+- name: Ensuring ansible_user is in docker-machines group
+  ansible.builtin.user:
     name: "{{ user | default(ansible_facts['env'].SUDO_USER) }}"
     append: true
     groups: docker-machines

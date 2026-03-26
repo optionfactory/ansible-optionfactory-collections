@@ -1,9 +1,10 @@
-- hosts:
+- name: Example usage of legopfa
+  hosts:
     - 127.0.0.1
   connection: local
   tasks:
-    - name: "can configure legopfa service and timer"
-      include_role:
+    - name: Can configure legopfa service and timer
+      ansible.builtin.include_role:
         name: legopfa
       vars:
         container_name: "nginx-project"
