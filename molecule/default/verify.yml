@@ -1,0 +1,15 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Root directory was created with correct permissions
+      ansible.builtin.stat:
+        path: "/opt/testapp/"
+      register: dir_stat
+    - name: Assert directory state
+      ansible.builtin.assert:
+        that:
+          - dir_stat.stat.exists
+          - dir_stat.stat.isdir
+          - dir_stat.stat.mode == '0700'

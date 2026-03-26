@@ -1,0 +1,16 @@
+---
+dependency:
+  name: galaxy
+platforms:
+  - name: localhost
+    connection: local
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      all:
+        hosts:
+          localhost:
+            ansible_connection: local
+verifier:
+  name: ansible

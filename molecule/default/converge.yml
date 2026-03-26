@@ -1,0 +1,25 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    a_var: "a_var_value"
+  tasks:
+    - name: Test the service_bundle plugin
+      optionfactory.service_bundles.service_bundle:
+        service_name: testapp
+        service_args: >
+          --network testapp
+          --ip 172.18.0.11
+          optionfactory/debian13-jdk21-keycloak2:216
+        dirs:
+          - dest: /opt/testapp/
+          - dest: /opt/testapp/bin
+          - dest: /opt/testapp/conf
+        files:
+          - dest: /opt/testapp/bin/test-app.jar
+            src: testapp.jar
+          - dest: /opt/testapp/conf/configuration.properties
+            content: >
+              key=value
+              key2={{ a_var }}
