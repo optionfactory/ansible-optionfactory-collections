@@ -1,0 +1,13 @@
+[Unit]
+Description=podman {{ service_name }} container service
+Wants=network-online.target
+After=network-online.target
+After=local-fs.target
+
+[Service]
+Restart=always
+RestartSec=5
+ExecStart=/usr/bin/podman run --replace --name {{ service_name }} {{ service_args }}
+
+[Install]
+WantedBy=multi-user.target

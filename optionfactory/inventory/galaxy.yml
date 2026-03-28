@@ -1,6 +1,6 @@
 namespace: optionfactory
 name: inventory
-version: 3.0.1
+version: 4.0.0
 readme: README.md
 authors:
   - Multiple <info@optionfactory.net>

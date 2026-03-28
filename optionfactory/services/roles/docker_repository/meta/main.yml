@@ -1,0 +1,21 @@
+galaxy_info:
+  author: optionfactory
+  description: Installs docker official repository
+  company: optionfactory
+  license: BSD-3-Clause
+  min_ansible_version: "2.15.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL # Covers RHEL, CentOS, Rocky
+      versions:
+        - 8
+        - 9
+  galaxy_tags:
+    - docker
+    - repository
+dependencies: []

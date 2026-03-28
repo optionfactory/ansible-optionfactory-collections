@@ -5,8 +5,8 @@
   vars:
     a_var: "a_var_value"
   tasks:
-    - name: Test the service_bundle plugin
-      optionfactory.service_bundles.service_bundle:
+    - name: Test the services.bundle plugin
+      optionfactory.services.bundle:
         service_name: testapp
         service_args: >
           --network testapp

@@ -1,4 +1,0 @@
-requires_ansible: ">=2.15.0"
-action_groups:
-  service_bundles:
-    - service_bundle

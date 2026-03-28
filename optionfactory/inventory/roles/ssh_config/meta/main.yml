@@ -3,7 +3,7 @@ galaxy_info:
   description: Creates SSH config from ansible inventory
   company: optionfactory
   license: BSD-3-Clause
-  min_ansible_version: "2.7"
+  min_ansible_version: "2.15.0"
   platforms:
     - name: Ubuntu
   galaxy_tags: []

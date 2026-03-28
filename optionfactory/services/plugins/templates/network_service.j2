@@ -1,0 +1,12 @@
+[Unit]
+Description={{ service_name }} service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=5
+ExecStart={{ service_args }}
+
+[Install]
+WantedBy=multi-user.target
