@@ -2,39 +2,23 @@
 
 This is a set of collections used by OptionFactory Ansible manifests.
 
-## Collections
-
-- [Legacy](optionfactory/legacy): collects all legacy roles for ease of maintenance and to facilitate transition from roles to collections.
-- [Docker](optionfactory/docker): collects roles to handle docker installation and configuration.
-- [System](optionfactory/system): collects roles to handle system configuration.
- 
-# Requirements
+## Requirements
 
 Collections can be used by Ansible &gt;= 2.9, but Ansible &gt;= 2.11 is recommended
 
-# Naming conventions
+## Using collections
 
-Roles in a collection have to follow a stricter naming convention comparing to standard roles:
+### Install a collection
 
-- folder names in a role path are used to define its fully qualified name, so a path like optionfactory/legacy/roles/os_base will result in optionfactory.legacy.os_base.
-- all path elements (namespace, collection, role) are limited to lowercase alphanumeric characters plus underscore, and they must start with an alpha character
+To use a collection, you need to declare it in your ansible-galaxy.yml / requirements.yml declarations. 
 
-For more information: https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html#roles-directory
-
-# Using collections
-
-## Install a collection
-
-To use a collection you need to declare it in your ansible-galaxy.yml / requirements.yml declarations. 
-
-If the collections is not published on a known server, use its github repository url:
+If the collections are not published on a known server, use its GitHub repository url:
 
 ```yml
-  roles:
-  collections:
-    - name: https://github.com/optionfactory/ansible-optionfactory-collections
-      type: git
-      version: tag | branch
+collections:
+  - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory
+    type: git
+    version: 4.0.0
 ```
 
 Afterwards, run ansible-galaxy to install:
@@ -43,86 +27,109 @@ Afterwards, run ansible-galaxy to install:
 $ ansible-galaxy install -r ansible-galaxy.yml
 ```
 
-If you have Ansible &lt;=2.9 you need to install git collections manually; please refer to documentation at https://docs.ansible.com/ansible/2.9/user_guide/collections_using.html#installing-collections.
-
-
 For further clarifications please refer to the latest Ansible docs: https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#install-multiple-collections-with-a-requirements-file
 
-## Use roles in collections
 
-To use a role in a collection you need to refer to it with its fully qualified name:
+### Usage
 
+#### `optionfactory.services.bundle`
+This action is a powerful tool for defining an entire service in a single operation. It manages directory creation, file and template distribution, and the configuration of the associated systemd unit.
+
+**Example:**
 ```yml
-  roles:
-    - role: optionfactory.legacy.journald
-      vars:
-        forward_to_syslog: no
+- name: Provision a service bundle
+  optionfactory.services.bundle:
+    service_name: my-app
+    owner: myuser
+    group: mygroup
+    dirs:
+      - dest: /opt/my-app/config
+    files:
+      - dest: /opt/my-app/config/app.conf
+        content: "setting=value"
+    templates:
+      - src: my-app.j2
+        dest: /etc/my-app.conf
+    service_args: "--config /etc/my-app.conf"
 ```
 
+**Main parameters:**
+- `service_name`: (mandatory) Name of the systemd service.
+- `dirs`, `files`, `templates`: Lists of resources to be created/distributed.
+- `owner`, `group`: Default owners (default: `docker-machines`).
+
+#### `optionfactory.services.docker`
+Automates Docker installation and configuration, including system proxies and Docker networks.
+
+**Example:**
 ```yml
-  tasks:
-    - name: configure journald
-      include_role: 
-        name: optionfactory.legacy.journald
-      vars:
-        forward_to_syslog: no
+- name: Configure Docker
+  optionfactory.services.docker:
+    package: docker-ce
+    users: ["remote-user"]
+    proxy:
+      http: "http://proxy.example.com:8080"
+    network:
+      name: my-bridge
+      subnet: "172.20.0.0/24"
 ```
 
-It is possible to declare a collection to use all its roles without prefixes:
+#### `optionfactory.services.journald`
+Manages `systemd-journald` configuration.
 
+**Example:**
 ```yml
-  collections:
-    - optionfactory.legacy
-  roles:
-    - role: journald
-      vars:
-        forward_to_syslog: no
+- name: Configure journald
+  optionfactory.services.journald:
+    persistent: true
+    configuration: |
+      [Journal]
+      SystemMaxUse=1G
 ```
 
+**Parameters:**
+- `persistent`: (bool) If `true` (default), creates `/var/log/journal` to make logs persistent across reboots.
+- `configuration`: (string) The content to be written to `/etc/systemd/journald.conf`.
 
-# Migration steps from roles to collections
+#### `optionfactory.services.legopfa`
+Configures a `legopfa` certificate renewal service via a systemd timer.
 
-* change requirement file to use collection instead roles
-* install collections instead roles:
-* in playbook file change role name convention (the character `-` is not supported anymore)
-* in playbook file define namespace or declare collections terms.
+**Example:**
+```yml
+- name: Configure legopfa certificate renewal
+  optionfactory.services.legopfa:
+    container_name: my-lego-container
+```
 
-## Example of migration
-Makefile:
-```
- install-roles:
--       ansible-galaxy install --roles-path ansible/roles -r ansible/ansible-galaxy.yml --force
-+       ansible-galaxy collection install --collections-path ansible/collections -r ansible/ansible-galaxy.yml
+**Parameters:**
+- `container_name`: (mandatory) The name of the docker container running `legopfa`.
 
-```
-requirement file (ansible-galaxy.yml):
-```
- ---
--- src: https://bitbucket.org/optionfactory/docker.git
--  scm: git
--- src: https://bitbucket.org/optionfactory/docker-service.git
--  scm: git
--- src: https://bitbucket.org/optionfactory/ubuntu-aws.git
--  scm: git
--
-+collections:
-+  - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory/legacy
-+    type: git
-+    version: master
+#### `optionfactory.services.ps1`
+Installs a script in `/etc/profile.d/ps1.sh` that provides an advanced shell prompt. It shows:
+- Dynamic host color based on the hostname.
+- Current branch for Git and Mercurial repositories.
+- Visual indicator if the shell is inside a Docker container.
+- Status of the last command (⚙/⚠).
 
+**Example:**
+```yml
+- name: Install custom PS1
+  optionfactory.services.ps1: {}
 ```
-playbook:
+
+#### `optionfactory.services.service`
+A simplified version of `bundle` focused only on creating a systemd unit from a template.
+
+**Example:**
+```yml
+- name: Provision a simple service
+  optionfactory.services.service:
+    service_name: my-simple-service
+    service_template: docker_service.j2
+    service_args: "--port 8080"
 ```
- - all
-   remote_user: ubuntu
-   become: yes
-+  collections: optionfactory.legacy
-+
-   roles:
--    - role: ubuntu-aws
-+    - role: ubuntu_aws
-     - role: docker
--    - role: docker-service
-+    - role: docker_service
-[...]
-```
+
+**Parameters:**
+- `service_name`: (mandatory) Name of the service.
+- `service_template`: Name of the template to use (searches in Ansible paths or plugin defaults).
+- `service_args`: Variables passed to the template.
