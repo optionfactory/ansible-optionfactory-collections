@@ -11,15 +11,20 @@ description:
       directory, generates the interface configuration with dynamic TCP MSS clamping,
       and manages the systemd service.
 options:
+    host_ip:
+        type: str
+        required: true
+        description: "The real IP address (underlay) of the current node executing the task."
     interface:
         type: str
         required: false
         default: "wg-mesh"
         description: "The name of the WireGuard interface and systemd service to create."
-    host_ip:
+    config_template:
         type: str
-        required: true
-        description: "The real IP address (underlay) of the current node executing the task."
+        required: false
+        default: "wireguard_mesh_config.j2"
+        description: "The configuration template to use."
     peers:
         type: list
         elements: dict
@@ -51,7 +56,6 @@ options:
 EXAMPLES = r'''
 - name: Deploy WireGuard Mesh
   optionfactory.services.wireguard_mesh:
-    interface: wg-mesh
     host_ip: "10.1.1.1"
     peers:
       - host_ip: "10.1.1.1"

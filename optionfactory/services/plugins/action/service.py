@@ -37,15 +37,9 @@ class ActionModule(Action):
             'changed': systemd_changed or reload_changed,
         }
     def provision_systemd_unit(self, ctx, service_name, service_args, service_template):
-        try:
-            actual_template_src = self._find_needle('templates', service_template)
-        except AnsibleError:
-            plugin_dir = os.path.dirname(__file__)
-            plugin_templates_dir = os.path.abspath(os.path.join(plugin_dir, '../templates'))
-            actual_template_src = os.path.join(plugin_templates_dir, service_template)
-            if not os.path.exists(actual_template_src):
-                return failure(f"Template '{service_template}' not found in user paths or plugin defaults."), False
-
+        err, actual_template_src = self.find_template(service_template)
+        if err:
+            return err
         svc_ctx = ctx.with_updated_vars({
             'service_name': service_name,
             'service_args': service_args

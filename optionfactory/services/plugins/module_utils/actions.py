@@ -1,5 +1,5 @@
-
-
+import os
+from ansible.errors import AnsibleError
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
@@ -86,6 +86,17 @@ class Action(ActionBase):
         if changed:
             log_changed()
         return prefixed(res, prefix), res.get('changed', False)
+
+    def find_template(self, template):
+        try:
+            actual_template_src = self._find_needle('templates', template)
+            return None, actual_template_src
+        except AnsibleError:
+            plugin_dir = os.path.dirname(__file__)
+            plugin_templates_dir = os.path.abspath(os.path.join(plugin_dir, '../templates'))
+            actual_template_src = os.path.join(plugin_templates_dir, template)
+            if not os.path.exists(actual_template_src):
+                return failure(f"Template '{template}' not found in user paths or plugin defaults."), None
 
     def run(self, tmp=None, task_vars=None):
         super(Action, self).run(tmp, task_vars)

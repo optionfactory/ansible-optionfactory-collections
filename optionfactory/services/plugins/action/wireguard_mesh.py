@@ -4,8 +4,9 @@ from ansible_collections.optionfactory.services.plugins.module_utils.actions imp
 class ActionModule(Action):
 
     ARGUMENT_SPEC = dict(
-        interface=dict(type='str', required=True, default='wg-mesh'),
         host_ip=dict(type='str', required=True),
+        interface=dict(type='str', required=False, default='wg-mesh'),
+        config_template=dict(type='str', required=False, default='wireguard_mesh_config.j2'),
         peers=dict(
             type='list',
             required=True,
@@ -80,37 +81,22 @@ class ActionModule(Action):
         if err: 
             return err
 
-        config_lines = [
-            "[Interface]",
-            f"Address = { local.get('tunnel_cidr') }",
-            "ListenPort = 51820",
-            f"PrivateKey = { local.get('private_key') }",
-            f"PostUp = iptables -I FORWARD -i { wg_interface } -j ACCEPT",
-            f"PostUp = iptables -I FORWARD -o { wg_interface } -j ACCEPT",
-            f"PostUp = iptables -t mangle -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
-            f"PostDown = iptables -D FORWARD -i { wg_interface } -j ACCEPT",
-            f"PostDown = iptables -D FORWARD -o { wg_interface } -j ACCEPT",
-            "PostDown = iptables -t mangle -D FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
-        ]
-
-        for remote_peer in remote_peers:
-            remote_peer_tunnel_ip = remote_peer.get('tunnel_cidr').split('/')[0]                
-            config_lines.extend([
-                "[Peer]",
-                f"PublicKey = { remote_peer.get('public_key') }",
-                f"Endpoint = { remote_peer.get('host_ip') }:51820",
-                f"AllowedIPs = { remote_peer_tunnel_ip }/32, { remote_peer.get('docker_subnet') }",
-                "PersistentKeepalive = 25",
-                ""
-            ])
-        config_content = "\n".join(config_lines)
-
-        err, wireguard_config_changed = self.module_step(ctx, {
+        err, config_template = self.find_template(args.get('config_template'))
+        if err:
+            return err
+        svc_ctx = ctx.with_updated_vars({
+            'wg_interface': wg_interface,
+            'local': local,
+            'remote_peers': remote_peers,
+        })
+        err, wireguard_config_changed = self.action_step(svc_ctx, {
             'step': f"Ensuring { wg_interface } configuration is up to date",
-            'name': 'ansible.builtin.copy',
+            'name': 'ansible.builtin.template',
             'args': {
+                'src': config_template,
                 'dest': f'/etc/wireguard/{ wg_interface }.conf',
-                'content': config_content,
+                'owner': 'root',
+                'group': 'root',
                 'mode': '0600'
             }
         })
@@ -126,7 +112,8 @@ class ActionModule(Action):
                 'state': 'restarted' if wireguard_config_changed else 'started'
             }
         })
-        
+        if err:
+            return err        
         return {
             'msg': "Wireguard mesh setup completed.",
             'failed': False,
