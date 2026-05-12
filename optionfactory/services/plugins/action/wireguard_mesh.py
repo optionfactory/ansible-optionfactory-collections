@@ -102,7 +102,50 @@ class ActionModule(Action):
         })
         if err:
             return err
+        
+        err, docker_override_dir_changed = self.module_step(ctx, {
+            'step': "Ensuring Docker systemd override directory exists",
+            'name': 'ansible.builtin.file',
+            'args': {
+                'path': '/etc/systemd/system/docker.service.d',
+                'state': 'directory',
+                'owner': 'root',
+                'group': 'root',
+                'mode': '0755'
+            }
+        })
+        if err: 
+            return err
+        
+        err, docker_override_changed = self.module_step(ctx, {
+            'step': "Ensuring Docker waits for WireGuard interface",
+            'name': 'ansible.builtin.copy',
+            'args': {
+                'content': "\n".join([
+                    "[Unit]",
+                    f"After=wg-quick@{ wg_interface }.service",
+                    f"Wants=wg-quick@{ wg_interface }.service"
+                ]),
+                'dest': f'/etc/systemd/system/docker.service.d/wireguard-{ wg_interface }.conf',
+                'owner': 'root',
+                'group': 'root',
+                'mode': '0644',
+            }
+        })
+        if err: 
+            return err
 
+        if docker_override_changed:
+            err, _ = self.module_step(ctx, {
+                'step': "Reloading systemd daemon to apply Docker dependency",
+                'name': 'ansible.builtin.systemd',
+                'args': {
+                    'daemon_reload': True
+                }
+            })
+            if err: 
+                return err
+            
         err, service_changed = self.module_step(ctx, {
             'step': 'Ensuring service is started and updated',
             'name': 'ansible.builtin.systemd',
@@ -122,6 +165,8 @@ class ActionModule(Action):
                 ip_forward_changed or
                 wireguard_dir_changed or
                 wireguard_config_changed or
+                docker_override_dir_changed or
+                docker_override_changed or
                 service_changed
             )
         }

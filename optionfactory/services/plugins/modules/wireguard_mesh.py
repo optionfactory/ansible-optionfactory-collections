@@ -1,20 +1,18 @@
-#!/usr/bin/python
 from ansible.module_utils.basic import AnsibleModule
-
 DOCUMENTATION = r'''
 ---
 module: wireguard_mesh
-short_description: Deploy a full-mesh WireGuard VPN topology.
+short_description: Configures a full-mesh WireGuard VPN topology.
 description:
     - This is an action plugin that automatically configures a WireGuard mesh network.
-    - It installs necessary packages, enables IPv4 forwarding, manages the configuration
-      directory, generates the interface configuration with dynamic TCP MSS clamping,
-      and manages the systemd service.
+    - It installs necessary packages, enables IPv4 forwarding, generates the interface configuration 
+      with dynamic TCP MSS clamping, manages the systemd service, configures docker deamon to start after the configured wg-quick service.
+    - When using it on AWS make sure you disable source/destination check in the Networking options of your EC2 instance.
 options:
     host_ip:
         type: str
         required: true
-        description: "The real IP address (underlay) of the current node executing the task."
+        description: "The real IP address of the current node executing the task."
     interface:
         type: str
         required: false
@@ -34,7 +32,7 @@ options:
             host_ip:
                 type: str
                 required: true
-                description: "The real, physical IP address (Endpoint) of the peer."
+                description: "The real IP address of the peer."
             tunnel_cidr:
                 type: str
                 required: true
@@ -46,11 +44,11 @@ options:
             private_key:
                 type: str
                 required: true
-                description: "The private key for the peer."
+                description: "The private key for the peer. (your can use 'wg genkey | tee /dev/tty | wg pubkey')"
             public_key:
                 type: str
                 required: true
-                description: "The public key for the peer."
+                description: "The public key for the peer. (your can use 'wg genkey | tee /dev/tty | wg pubkey')"
 '''
 
 EXAMPLES = r'''

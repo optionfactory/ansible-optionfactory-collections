@@ -87,16 +87,22 @@ class Action(ActionBase):
             log_changed()
         return prefixed(res, prefix), res.get('changed', False)
 
-    def find_template(self, template):
+    def find_resource(self, what, filename):
         try:
-            actual_template_src = self._find_needle('templates', template)
-            return None, actual_template_src
+            found = self._find_needle(what, filename)
+            return None, found
         except AnsibleError:
             plugin_dir = os.path.dirname(__file__)
-            plugin_templates_dir = os.path.abspath(os.path.join(plugin_dir, '../templates'))
-            actual_template_src = os.path.join(plugin_templates_dir, template)
-            if not os.path.exists(actual_template_src):
-                return failure(f"Template '{template}' not found in user paths or plugin defaults."), None
+            plugin_sub_dir = os.path.abspath(os.path.join(plugin_dir, f'../{ what }'))
+            found = os.path.join(plugin_sub_dir, filename)
+            if not os.path.exists(found):
+                return failure(f"In '{ what }': '{filename}' not found in user paths or plugin defaults."), None
+            return None, found
+
+    def find_template(self, filename):
+        return self.find('templates', filename)
+    def find_file(self, filename):
+        return self.find('files', filename)
 
     def run(self, tmp=None, task_vars=None):
         super(Action, self).run(tmp, task_vars)
