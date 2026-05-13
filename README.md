@@ -133,3 +133,30 @@ A simplified version of `bundle` focused only on creating a systemd unit from a 
 - `service_name`: (mandatory) Name of the service.
 - `service_template`: Name of the template to use (searches in Ansible paths or plugin defaults).
 - `service_args`: Variables passed to the template.
+
+
+#### `optionfactory.services.wireguard_mesh`
+Configures a full-mesh WireGuard VPN topology.
+
+**Example:**
+```yml
+- name: Deploy WireGuard Mesh
+  optionfactory.services.wireguard_mesh:
+    host_ip: "10.1.1.1"
+    peers:
+      - host_ip: "10.1.1.1"
+        tunnel_cidr: "10.0.0.1/24"
+        docker_subnet: "172.18.1.0/24"
+        private_key: "{{ vault_node_a_priv }}"
+        public_key: "PubKeyA="
+      - host_ip: "10.1.1.2"
+        tunnel_cidr: "10.0.0.2/24"
+        docker_subnet: "172.18.2.0/24"
+        private_key: "{{ vault_node_b_priv }}"
+        public_key: "PubKeyB="
+      - host_ip: "10.1.1.3"
+        tunnel_cidr: "10.0.0.3/24"
+        docker_subnet: "172.18.3.0/24"
+        private_key: "{{ vault_node_c_priv }}"
+        public_key: "PubKeyC="
+```
