@@ -17,4 +17,6 @@ test:
 
 lint:
 	$(VENV_BIN)/ansible-lint */* -v
-
+	
+update-deps:
+	$(VENV_BIN)/pip install --upgrade ansible-core molecule ansible-lint
