@@ -13,8 +13,7 @@ galaxy_info:
         - all
     - name: EL # Covers RHEL, CentOS, Rocky
       versions:
-        - 8
-        - 9
+        - all
   galaxy_tags:
     - docker
     - repository

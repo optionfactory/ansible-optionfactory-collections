@@ -16,6 +16,7 @@ test:
 	$(VENV_BIN)/molecule test
 
 lint:
+	$(VENV_BIN)/ansible-galaxy collection install optionfactory/services/ --force
 	$(VENV_BIN)/ansible-lint */* -v
 	
 update-deps:

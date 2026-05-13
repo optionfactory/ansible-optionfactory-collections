@@ -25,7 +25,7 @@ EXAMPLES = r'''
 # Configures journald as persistent and configures it
 - name: Configure journald with persistent storage and a custom configuration
   optionfactory.services.journald:
-    persistent: yes
+    persistent: true
     configuration: |
       [Journal]
       Storage=persistent
@@ -36,7 +36,7 @@ EXAMPLES = r'''
 # Configures journald as persistent
 - name: Ensure persistent journal directory exists without changing the conf file
   optionfactory.services.journald:
-    persistent: yes
+    persistent: true
 '''
 
 RETURN = r'''

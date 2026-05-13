@@ -130,13 +130,12 @@ EXAMPLES = r'''
       - dest: "/opt/myapp/keycloak/conf"
         mode: "0755"
         owner: "root"
-        group: "root"      
+        group: "root"
     files:
       - dest: "app.jar"
         src: "app.jar"
       - dest: ".env"
         content: "DB_PASS={{ vault_password }}"
-      - { content: , dest: ".env" }
 '''
 
 RETURN = r'''
