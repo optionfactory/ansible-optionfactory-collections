@@ -100,9 +100,9 @@ class Action(ActionBase):
             return None, found
 
     def find_template(self, filename):
-        return self.find('templates', filename)
+        return self.find_resource('templates', filename)
     def find_file(self, filename):
-        return self.find('files', filename)
+        return self.find_resource('files', filename)
 
     def run(self, tmp=None, task_vars=None):
         super(Action, self).run(tmp, task_vars)
