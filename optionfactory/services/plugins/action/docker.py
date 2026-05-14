@@ -99,7 +99,7 @@ class ActionModule(Action):
             "NO_PROXY": no_proxy
         }
         env_lines = [f'Environment="{k}={v}"' for k, v in proxies.items() if v]
-        err, proxy_file_changed = self.module_step(ctx, {
+        err, proxy_file_changed = self.action_step(ctx, {
             'step': 'Provisioning http-proxy.conf',
             'name': 'ansible.builtin.copy',
             'args': {
