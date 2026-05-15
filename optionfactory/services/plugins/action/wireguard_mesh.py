@@ -36,13 +36,17 @@ class ActionModule(Action):
         err, wireguard_config_changed = self.configure_wireguard(ctx, wg_interface, local, remote_peers, config_template)
         if err:
             return err
+        err, docker_network_changed = self.configure_docker_network(ctx, wg_interface, local)
+        if err:
+            return err
+        
         err, docker_overrides_changed = self.configure_docker(ctx, wg_interface)
         if err:
             return err
         return {
             'msg': "Wireguard mesh setup completed.",
             'failed': False,
-            'changed': (wireguard_package_changed or ip_forward_changed or wireguard_config_changed or docker_overrides_changed)
+            'changed': (wireguard_package_changed or ip_forward_changed or wireguard_config_changed or docker_network_changed or docker_overrides_changed)
         }
 
     def partition_peers(self, host_ip, peers):
@@ -127,6 +131,25 @@ class ActionModule(Action):
         if err:
             return err, False
         return err, directory_changed or config_changed or service_changed
+    def configure_docker_network(self, ctx, wg_interface, local):
+        docker_interface = f"{wg_interface}-docker"
+        return self.action_step(ctx, {
+            'step': f'Ensuring docker mesh network {docker_interface} is present',
+            'name': 'community.docker.docker_network',
+            'args': {
+                'name': docker_interface,
+                'driver_options': {
+                    "com.docker.network.bridge.trusted_host_interfaces": wg_interface,
+                    "com.docker.network.bridge.name": docker_interface,
+                    "com.docker.network.bridge.enable_ip_masquerade": "false",
+                    "com.docker.network.bridge.gateway_mode_ipv6": "routed",
+                },
+                'ipam_config': [{
+                    'subnet': local.get('docker_subnet'),
+                }]
+            }
+        })
+
 
     def configure_docker(self, ctx, wg_interface):
         err, directory_changed = self.module_step(ctx, {
@@ -142,7 +165,7 @@ class ActionModule(Action):
         })
         if err:
             return err, False
-        err, overrides_changed = self.module_step(ctx, {
+        err, overrides_changed = self.action_step(ctx, {
             'step': "Ensuring Docker waits for WireGuard interface",
             'name': 'ansible.builtin.copy',
             'args': {
