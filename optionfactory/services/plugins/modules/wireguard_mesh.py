@@ -5,9 +5,10 @@ module: wireguard_mesh
 short_description: Configures a full-mesh WireGuard VPN topology.
 description:
     - This is an action plugin that automatically configures a WireGuard mesh network.
-    - It installs necessary packages, enables IPv4 forwarding, generates the interface configuration 
-      with dynamic TCP MSS clamping, manages the systemd service, configures docker deamon to start after the configured wg-quick service.
-    - When using it on AWS make sure you disable source/destination check in the Networking options of your EC2 instance.
+    - It installs necessary packages, enables IPv4 forwarding, generates the wg interface 
+      configuration, the docker mesh network, manages the systemd service, configures docker deamon to start 
+      after the configured wg-quick service.
+
 options:
     host_ip:
         type: str
@@ -33,14 +34,14 @@ options:
                 type: str
                 required: true
                 description: "The real IP address of the peer."
-            tunnel_cidr:
+            wg_tunnel_cidr:
                 type: str
                 required: true
                 description: "The virtual WireGuard IP and subnet mask (e.g., 10.0.0.1/24)."
-            docker_subnet:
+            docker_mesh_subnet:
                 type: str
                 required: true
-                description: "The Docker subnet behind this peer to route traffic to (e.g., 172.18.1.0/24)."
+                description: "The Docker subnet behind this peer to route traffic to (e.g., 172.19.10.0/24)."
             private_key:
                 type: str
                 required: true
@@ -56,21 +57,21 @@ EXAMPLES = r'''
   optionfactory.services.wireguard_mesh:
     host_ip: "10.1.1.1"
     peers:
-      - host_ip: "10.1.1.1"
-        tunnel_cidr: "10.0.0.1/24"
-        docker_subnet: "172.18.1.0/24"
-        private_key: "{{ vault_node_a_priv }}"
-        public_key: "PubKeyA="
-      - host_ip: "10.1.1.2"
-        tunnel_cidr: "10.0.0.2/24"
-        docker_subnet: "172.18.2.0/24"
-        private_key: "{{ vault_node_b_priv }}"
-        public_key: "PubKeyB="
-      - host_ip: "10.1.1.3"
-        tunnel_cidr: "10.0.0.3/24"
-        docker_subnet: "172.18.3.0/24"
-        private_key: "{{ vault_node_c_priv }}"
-        public_key: "PubKeyC="
+      - host_ip: 172.31.47.254
+        wg_tunnel_cidr: 10.0.0.1/24
+        docker_mesh_subnet: 172.19.10.0/24
+        private_key: "{{ keys.testwg1.private }}"
+        public_key: "{{ keys.testwg1.public }}"
+      - host_ip: 172.31.35.12
+        wg_tunnel_cidr: 10.0.0.2/24
+        docker_mesh_subnet: 172.19.20.0/24
+        private_key: "{{ keys.testwg2.private }}"
+        public_key: "{{ keys.testwg2.public }}"
+      - host_ip: 172.31.44.136
+        wg_tunnel_cidr: 10.0.0.3/24
+        docker_mesh_subnet: 172.19.30.0/24
+        private_key: "{{ keys.testwg3.private }}"
+        public_key: "{{ keys.testwg3.public }}"
 '''
 
 RETURN = r'''

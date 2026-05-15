@@ -12,8 +12,8 @@ class ActionModule(Action):
             'elements': 'dict',
             'options': {
                 'host_ip': {'type': 'str', 'required': True},
-                'tunnel_cidr': {'type': 'str', 'required': True},
-                'docker_subnet': {'type': 'str', 'required': True},
+                'wg_tunnel_cidr': {'type': 'str', 'required': True},
+                'docker_mesh_subnet': {'type': 'str', 'required': True},
                 'private_key': {'type': 'str', 'required': True, 'no_log': True},
                 'public_key': {'type': 'str', 'required': True},
             }
@@ -131,9 +131,10 @@ class ActionModule(Action):
         if err:
             return err, False
         return err, directory_changed or config_changed or service_changed
+    
     def configure_docker_network(self, ctx, wg_interface, local):
         docker_interface = f"{wg_interface}-docker"
-        return self.action_step(ctx, {
+        return self.module_step(ctx, {
             'step': f'Ensuring docker mesh network {docker_interface} is present',
             'name': 'community.docker.docker_network',
             'args': {
@@ -145,7 +146,7 @@ class ActionModule(Action):
                     "com.docker.network.bridge.gateway_mode_ipv6": "routed",
                 },
                 'ipam_config': [{
-                    'subnet': local.get('docker_subnet'),
+                    'subnet': local.get('docker_mesh_subnet'),
                 }]
             }
         })

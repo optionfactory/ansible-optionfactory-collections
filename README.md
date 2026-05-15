@@ -60,6 +60,7 @@ This action is a powerful tool for defining an entire service in a single operat
 
 #### `optionfactory.services.docker`
 Automates Docker installation and configuration, including system proxies and Docker networks.
+*Notes: when using docker-ce for distros missing the package, ensure that the docker_repository role is included*
 
 **Example:**
 ```yml

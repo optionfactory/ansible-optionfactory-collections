@@ -1,5 +1,5 @@
 [Interface]
-Address = {{ local.tunnel_cidr }}
+Address = {{ local.wg_tunnel_cidr }}
 ListenPort = 51820
 PrivateKey = {{ local.private_key }}
 
@@ -12,7 +12,7 @@ PostDown = iptables -D FORWARD -o {{ wg_interface }} -j ACCEPT
 [Peer]
 PublicKey = {{ peer.public_key }}
 Endpoint = {{ peer.host_ip }}:51820
-AllowedIPs = {{ peer.tunnel_cidr.split('/')[0] }}/32, {{ peer.docker_subnet }}
+AllowedIPs = {{ peer.wg_tunnel_cidr.split('/')[0] }}/32, {{ peer.docker_mesh_subnet }}
 PersistentKeepalive = 25
 
 {% endfor %}
