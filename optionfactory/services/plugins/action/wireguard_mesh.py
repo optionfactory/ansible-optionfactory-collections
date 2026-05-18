@@ -139,10 +139,8 @@ class ActionModule(Action):
         driver_options = {
             "com.docker.network.bridge.trusted_host_interfaces": wg_interface,
             "com.docker.network.bridge.name": docker_interface,
-            "com.docker.network.bridge.enable_ip_masquerade": "false",
-            "com.docker.network.bridge.gateway_mode_ipv6": "routed"
+            "com.docker.network.bridge.enable_ip_masquerade": "false"
         }
-
         if maybe_mtu:
             driver_options["com.docker.network.driver.mtu"] = str(maybe_mtu)        
 
