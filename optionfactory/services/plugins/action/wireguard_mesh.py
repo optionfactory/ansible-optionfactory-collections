@@ -5,6 +5,7 @@ class ActionModule(Action):
     ARGUMENT_SPEC = {
         'host_ip': {'type': 'str', 'required': True},
         'interface': {'type': 'str', 'default': 'wg-mesh'},
+        "docker_mesh_mtu": {'type': 'int'},
         'config_template': {'type': 'str', 'default': 'wireguard_mesh_config.j2'},
         'peers': {
             'type': 'list',
@@ -36,7 +37,7 @@ class ActionModule(Action):
         err, wireguard_config_changed = self.configure_wireguard(ctx, wg_interface, local, remote_peers, config_template)
         if err:
             return err
-        err, docker_network_changed = self.configure_docker_network(ctx, wg_interface, local)
+        err, docker_network_changed = self.configure_docker_network(ctx, wg_interface, local, args.get('docker_mesh_mtu'))
         if err:
             return err
         
@@ -132,19 +133,25 @@ class ActionModule(Action):
             return err, False
         return err, directory_changed or config_changed or service_changed
     
-    def configure_docker_network(self, ctx, wg_interface, local):
+    def configure_docker_network(self, ctx, wg_interface, local, maybe_mtu):
         docker_interface = f"{wg_interface}-docker"
+
+        driver_options = {
+            "com.docker.network.bridge.trusted_host_interfaces": wg_interface,
+            "com.docker.network.bridge.name": docker_interface,
+            "com.docker.network.bridge.enable_ip_masquerade": "false",
+            "com.docker.network.bridge.gateway_mode_ipv6": "routed"
+        }
+
+        if maybe_mtu:
+            driver_options["com.docker.network.driver.mtu"] = str(maybe_mtu)        
+
         return self.module_step(ctx, {
             'step': f'Ensuring docker mesh network {docker_interface} is present',
             'name': 'community.docker.docker_network',
             'args': {
                 'name': docker_interface,
-                'driver_options': {
-                    "com.docker.network.bridge.trusted_host_interfaces": wg_interface,
-                    "com.docker.network.bridge.name": docker_interface,
-                    "com.docker.network.bridge.enable_ip_masquerade": "false",
-                    "com.docker.network.bridge.gateway_mode_ipv6": "routed",
-                },
+                'driver_options': driver_options,
                 'ipam_config': [{
                     'subnet': local.get('docker_mesh_subnet'),
                 }]

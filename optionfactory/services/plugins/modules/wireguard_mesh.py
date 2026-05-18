@@ -19,6 +19,10 @@ options:
         required: false
         default: "wg-mesh"
         description: "The name of the WireGuard interface and systemd service to create."
+    docker_mesh_mtu:
+        type: int
+        required: false
+        description: "The Docker mesh interface mtu (e.g., 1420)"
     config_template:
         type: str
         required: false
