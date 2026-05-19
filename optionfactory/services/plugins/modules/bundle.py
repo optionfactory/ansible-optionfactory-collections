@@ -62,10 +62,13 @@ options:
         suboptions:
             src:
                 type: str
-                description: "Local path to the source file. Mutually exclusive with 'content'."
+                description: "Path to the source file. Mutually exclusive with 'content'."
             content:
                 type: str
                 description: "Inline string content. Mutually exclusive with 'src'."
+            remote_src:
+                type: bool
+                description: "When true path is relative to the remote host, otherwise it is relative to local host. Mutually exclusive with 'content'."
             dest:
                 type: str
                 required: true
