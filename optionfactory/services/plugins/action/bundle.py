@@ -111,8 +111,8 @@ class ActionModule(Action):
                 'args': {
                     'state': 'directory',
                     'dest': d.get('dest'),
-                    'owner': d.get('owner', owner),
-                    'group': d.get('group', group),
+                    'owner': d.get('owner') or owner,
+                    'group': d.get('group') or group,
                     'mode': d.get('mode') or '0750'
                 }
             })
@@ -128,8 +128,8 @@ class ActionModule(Action):
             is_inline = bool(f.get('content'))
             args = {
                 'dest': f.get('dest'),
-                'owner': f.get('owner', owner),
-                'group': f.get('group', group),
+                'owner': f.get('owner') or owner,
+                'group': f.get('group') or group,
                 'mode': f.get('mode') or '0640'
             }
             if is_inline:
@@ -161,8 +161,8 @@ class ActionModule(Action):
                 'args': {
                     'src': t.get('src'),
                     'dest': t.get('dest'),
-                    'owner': t.get('owner', owner),
-                    'group': t.get('group', group),
+                    'owner': t.get('owner') or owner,
+                    'group': t.get('group') or group,
                     'mode': t.get('mode') or '0640'
                 }
             })
