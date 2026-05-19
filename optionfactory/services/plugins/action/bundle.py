@@ -30,12 +30,14 @@ class ActionModule(Action):
                 'dest': {'type': 'str', 'required': True},
                 'src': {'type': 'str'},
                 'content': {'type': 'str'},
+                'remote_src': {'type': 'bool'},
                 'owner': {'type': 'str'},
                 'group': {'type': 'str'},
                 'mode': {'type': 'raw'},
                 'when': {'type': 'bool', 'default': True}
             },
-            'mutually_exclusive': [['src', 'content']],
+            'required_if': [['remote_src', True, ['src']]],
+            'mutually_exclusive': [['src', 'content'], ['remote_src', 'content']],
             'required_one_of': [['src', 'content']]
         },
         'templates': {
@@ -136,6 +138,7 @@ class ActionModule(Action):
                 args['content'] = f.get('content')
             else:
                 args['src'] = self._find_needle('files', f.get('src'))
+                args['remote_src'] = f.get('remote_src', False)
 
             dest = f.get('dest')
             err, changed = self.action_step(ctx, {
