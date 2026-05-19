@@ -1,4 +1,4 @@
-from ansible_collections.optionfactory.services.plugins.module_utils.actions import Action, failure
+from ansible_collections.optionfactory.services.plugins.module_utils.actions import Action, failure, log_step
 
 
 class ActionModule(Action):

@@ -1,4 +1,5 @@
 import os
+from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.errors import AnsibleError
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
@@ -49,8 +50,9 @@ class Action(ActionBase):
     def module_step(self, ctx, conf):
         if conf.get('step'):
             log_step(conf.get('step'))
-        if not conf.get('when', True):
+        if not boolean(conf.get('when', True)):
             log_skipped()
+            return None, False
         res = self._execute_module(
             module_name=conf.get('name'),
             task_vars=ctx.task_vars,
@@ -69,8 +71,9 @@ class Action(ActionBase):
         new_task.args = conf.get('args')
         if conf.get('step'):
             log_step(conf.get('step'))
-        if not conf.get('when', True):
+        if not boolean(conf.get('when', True)):
             log_skipped()
+            return None, False
         action = self._shared_loader_obj.action_loader.get(
             conf.get('name'),
             task=new_task,
