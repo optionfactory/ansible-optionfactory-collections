@@ -1,4 +1,5 @@
 import os
+from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.errors import AnsibleActionFail, AnsibleError
 from ansible_collections.optionfactory.services.plugins.module_utils.actions import Action, failure
 
@@ -105,10 +106,11 @@ class ActionModule(Action):
     def provision_dirs(self, ctx, dirs, owner, group):
         any_changed = False
         for d in dirs:
+            if not boolean(d.get('when')):
+                continue
             dest = d.get('dest')
             err, changed = self.module_step(ctx, {
                 'step': f"Directory provisioning: {dest}",
-                'when': d.get('when'),
                 'name': 'ansible.builtin.file',
                 'args': {
                     'state': 'directory',
@@ -127,6 +129,8 @@ class ActionModule(Action):
     def provision_files(self, ctx, files, owner, group):
         any_changed = False
         for f in files:
+            if not boolean(f.get('when')):
+                continue
             is_inline = bool(f.get('content'))
             args = {
                 'dest': f.get('dest'),
@@ -143,7 +147,6 @@ class ActionModule(Action):
             dest = f.get('dest')
             err, changed = self.action_step(ctx, {
                 'step': f"File synchronization: {dest}",
-                'when': f.get('when'),
                 'name':"ansible.builtin.copy",
                 'args': args
             })
@@ -156,10 +159,11 @@ class ActionModule(Action):
     def provision_templates(self, ctx, templates, owner, group):
         any_changed = False
         for t in templates:
+            if not boolean(t.get('when')):
+                continue
             dest = t.get('dest')
             err, changed = self.action_step(ctx, {
                 'step': f"Template synchronization: {dest}",
-                'when': t.get('when'),
                 'name': "ansible.builtin.template",
                 'args': {
                     'src': t.get('src'),
