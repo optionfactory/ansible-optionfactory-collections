@@ -59,7 +59,7 @@ options:
 EXAMPLES = r'''
 - name: Deploy WireGuard Mesh
   optionfactory.services.wireguard_mesh:
-    host_ip: "10.1.1.1"
+    host_ip: "172.31.47.254"
     peers:
       - host_ip: 172.31.47.254
         wg_tunnel_cidr: 10.0.0.1/24
