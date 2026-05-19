@@ -72,7 +72,7 @@ class ActionModule(Action):
                 'step': f"Ensuring wireguard is installed",
                 'name': 'ansible.builtin.package',
                 'args': {
-                    'name': ['wireguard'],
+                    'name': ['wireguard', 'iptables'],
                     'state': 'present'
                 }
             })
@@ -81,7 +81,7 @@ class ActionModule(Action):
             'step': f"Ensuring wireguard and iptables are installed",
             'name': 'ansible.builtin.package',
             'args': {
-                'name': ['wireguard-tools', 'iptables'],
+                'name': ['wireguard-tools'],
                 'state': 'present'
             }
         })
