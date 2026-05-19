@@ -65,14 +65,27 @@ class ActionModule(Action):
         return None, local, remote_peers
 
     def install_packages(self, ctx):
-        return self.action_step(ctx, {
+        wireguard_changed = False
+        os_family = ctx.task_vars.get('ansible_facts', {}).get('os_family', 'unknown')
+        if os_family == 'Debian':
+            err, wireguard_changed = self.action_step(ctx, {
+                'step': f"Ensuring wireguard is installed",
+                'name': 'ansible.builtin.package',
+                'args': {
+                    'name': ['wireguard'],
+                    'state': 'present'
+                }
+            })
+            if err: return err, False
+        err, wireguard_tools_changed = self.action_step(ctx, {
             'step': f"Ensuring wireguard and iptables are installed",
             'name': 'ansible.builtin.package',
             'args': {
-                'name': ['wireguard', 'iptables'],
+                'name': ['wireguard-tools', 'iptables'],
                 'state': 'present'
             }
         })
+        return err, wireguard_changed or wireguard_tools_changed
 
     def enable_ip_forward(self, ctx):
         return self.module_step(ctx, {
