@@ -3,10 +3,11 @@ Address = {{ local.wg_tunnel_cidr }}
 ListenPort = 51820
 PrivateKey = {{ local.private_key }}
 
-PostUp = iptables -I FORWARD -i {{ wg_interface }} -j ACCEPT
-PostUp = iptables -I FORWARD -o {{ wg_interface }} -j ACCEPT
-PostDown = iptables -D FORWARD -i {{ wg_interface }} -j ACCEPT
-PostDown = iptables -D FORWARD -o {{ wg_interface }} -j ACCEPT
+PostUp = iptables -t filter -N DOCKER-USER 2>/dev/null || true
+PostUp = iptables -I DOCKER-USER -i {{ wg_interface }} -j ACCEPT
+PostUp = iptables -I DOCKER-USER -o {{ wg_interface }} -j ACCEPT
+PostDown = iptables -D DOCKER-USER -i {{ wg_interface }} -j ACCEPT
+PostDown = iptables -D DOCKER-USER -o {{ wg_interface }} -j ACCEPT
 
 {% for peer in remote_peers %}
 [Peer]
