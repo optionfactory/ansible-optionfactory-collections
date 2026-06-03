@@ -142,7 +142,7 @@ class ActionModule(Action):
                 args['content'] = f.get('content')
             else:
                 args['src'] = self._find_needle('files', f.get('src'))
-                args['remote_src'] = f.get('remote_src', False)
+                args['remote_src'] = f.get('remote_src') == True
 
             dest = f.get('dest')
             err, changed = self.action_step(ctx, {
