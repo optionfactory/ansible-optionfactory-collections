@@ -4,14 +4,16 @@
   become: true
   vars:
     a_var: "a_var_value"
+    images_version: 229
   tasks:
     - name: Test the services.bundle plugin
       optionfactory.services.bundle:
         service_name: testapp
+        service_image: "optionfactory/debian13-jdk21-keycloak2:{{ images_version }}"
         service_args: >
           --network testapp
           --ip 172.18.0.11
-          optionfactory/debian13-jdk21-keycloak2:216
+          optionfactory/debian13-jdk21-keycloak2:{{ images_version }}
         dirs:
           - dest: /opt/testapp/
           - dest: /opt/testapp/bin

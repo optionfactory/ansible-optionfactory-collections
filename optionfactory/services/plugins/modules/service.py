@@ -10,6 +10,10 @@ options:
         type: str
         required: true
         description: "The name of the systemd service."
+    service_image:
+        type: str
+        required: false
+        description: "The docker image to be prefetched. Also injected into the template context."
     service_template:
         type: str
         required: false

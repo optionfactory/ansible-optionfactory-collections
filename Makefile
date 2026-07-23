@@ -12,7 +12,7 @@ examples:
 	done
 
 test:
-	$(VENV_BIN)/ansible-galaxy collection install optionfactory/service_bundles/ --force
+	$(VENV_BIN)/ansible-galaxy collection install optionfactory/services/ --force
 	$(VENV_BIN)/molecule test
 
 lint:
