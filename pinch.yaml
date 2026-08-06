@@ -4,6 +4,6 @@ project:
   name: "ansible-optionfactory-collections"
   tier: tier3
   lifecycle: active
-  type: library
+  type: infrastructure
   stewards:
     - Roberto Ferranti
