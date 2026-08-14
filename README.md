@@ -18,7 +18,7 @@ If the collections are not published on a known server, use its GitHub repositor
 collections:
   - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory
     type: git
-    version: 4.0.0
+    version: 4.1.0
 ```
 
 Afterwards, run ansible-galaxy to install:
