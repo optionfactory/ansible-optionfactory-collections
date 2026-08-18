@@ -12,13 +12,30 @@ Collections require Ansible >= 2.15.0
 
 To use a collection, you need to declare it in your ansible-galaxy.yml / requirements.yml declarations. 
 
+If the collections are published on a known server (e.g. Ansible Galaxy), use its name:
+
+```yml
+collections:
+  - name: optionfactory.services
+    version: 5.0.0
+```
+
+The `version` is optional: when omitted, the latest release is installed. When using multiple servers, pin the source explicitly:
+
+```yml
+collections:
+  - name: optionfactory.services
+    source: https://galaxy.ansible.com
+    version: 5.0.0
+```
+
 If the collections are not published on a known server, use its GitHub repository url:
 
 ```yml
 collections:
   - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory
     type: git
-    version: 4.1.0
+    version: 5.0.0
 ```
 
 Afterwards, run ansible-galaxy to install:
