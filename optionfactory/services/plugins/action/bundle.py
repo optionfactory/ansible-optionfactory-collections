@@ -127,7 +127,7 @@ class ActionModule(Action):
         if err:
             return err
         changed = (image_changed or dir_changed or file_changed or template_changed or systemd_changed)
-        err, restart_changed = self.module_step(ctx, {
+        err, restart_changed = self.step(ctx, {
              'step': f"Ensuring latest systemd unit is loaded and (re)started: {name}",
             'name': 'ansible.builtin.systemd',
             'args': {
@@ -148,7 +148,7 @@ class ActionModule(Action):
     def prefetch_image(self, ctx, image):
         if not image:
             return None, False
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': f"Prefetching docker image: {image}",
             'name': 'community.docker.docker_image',
             'args': {
@@ -164,7 +164,7 @@ class ActionModule(Action):
             if not boolean(d.get('when')):
                 continue
             dest = d.get('dest')
-            err, changed = self.module_step(ctx, {
+            err, changed = self.step(ctx, {
                 'step': f"Directory provisioning: {dest}",
                 'name': 'ansible.builtin.file',
                 'args': {
@@ -200,7 +200,7 @@ class ActionModule(Action):
                 args['remote_src'] = f.get('remote_src') == True
 
             dest = f.get('dest')
-            err, changed = self.action_step(ctx, {
+            err, changed = self.step(ctx, {
                 'step': f"File synchronization: {dest}",
                 'name':"ansible.builtin.copy",
                 'args': args
@@ -217,7 +217,7 @@ class ActionModule(Action):
             if not boolean(t.get('when')):
                 continue
             dest = t.get('dest')
-            err, changed = self.action_step(ctx, {
+            err, changed = self.step(ctx, {
                 'step': f"Template synchronization: {dest}",
                 'name': "ansible.builtin.template",
                 'args': {
@@ -240,7 +240,7 @@ class ActionModule(Action):
             return err
         svc_ctx = ctx.with_updated_vars(service_vars(name, engine, block))
 
-        return self.action_step(svc_ctx, {
+        return self.step(svc_ctx, {
             'step': f"Configuring systemd unit: {name}.service",
             'name': 'ansible.builtin.template',
             'args': {

@@ -65,7 +65,7 @@ class ActionModule(Action):
 
         reload_changed = False
         if image_changed or systemd_changed:
-            err, reload_changed = self.module_step(ctx, {
+            err, reload_changed = self.step(ctx, {
                 'step': 'Reloading daemons',
                 'name': 'ansible.builtin.systemd',
                 'args': {
@@ -83,7 +83,7 @@ class ActionModule(Action):
     def prefetch_image(self, ctx, image):
         if not image:
             return None, False
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': f"Prefetching docker image: {image}",
             'name': 'community.docker.docker_image',
             'args': {
@@ -99,7 +99,7 @@ class ActionModule(Action):
             return err
         svc_ctx = ctx.with_updated_vars(service_vars(name, engine, block))
 
-        return self.action_step(svc_ctx, {
+        return self.step(svc_ctx, {
             'step': f"Configuring systemd unit: {name}.service",
             'name': 'ansible.builtin.template',
             'args': {

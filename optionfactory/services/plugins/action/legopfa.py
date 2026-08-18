@@ -13,7 +13,7 @@ class ActionModule(Action):
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
         container_name = args.get('container_name')
-        err, service_changed = self.action_step(ctx, {
+        err, service_changed = self.step(ctx, {
             'step': "Provisioning legopfa-renewal.service",
             'name': 'ansible.builtin.copy',
             'args':{
@@ -33,7 +33,7 @@ class ActionModule(Action):
         })
         if err:
             return err
-        err, timer_changed = self.action_step(ctx, {
+        err, timer_changed = self.step(ctx, {
             'step': "Provisioning legopfa-renewal.timer",
             'name':'ansible.builtin.copy',
             'args': {
@@ -56,7 +56,7 @@ class ActionModule(Action):
         })
         if err:
             return err
-        err, start_changed = self.module_step(ctx, {
+        err, start_changed = self.step(ctx, {
             'step': "Ensuring legopfa-renewal.timer is started",
             'name': 'ansible.builtin.systemd',
             'args': {

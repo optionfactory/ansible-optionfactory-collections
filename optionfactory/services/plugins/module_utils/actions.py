@@ -48,7 +48,46 @@ class Action(ActionBase):
     ARGUMENT_SPEC = {}
     VALIDATOR_KWARGS = {}
 
+    def step(self, ctx, conf):
+        """
+        Runs conf['name'] through the right execution path, chosen
+        automatically by mirroring TaskExecutor's own resolution:
+
+        1. if the target has a dedicated action plugin (ansible.builtin.copy,
+           ansible.builtin.template, ...) the controller-side action runs
+           (action_step) — required for controller-side template rendering
+           with ctx.task_vars and for 'src' lookup via _find_needle;
+        2. otherwise the module is executed on the managed node
+           (module_step).
+
+        Call sites must use this instead of picking a helper by hand: the
+        availability of an action plugin can vary across ansible-core
+        versions, and this dispatch adapts to the running one.
+
+        C(conf) keys: step (log label), name (target FQCN), args, when
+        (skips the step when falsy).
+        """
+        name = conf.get('name')
+        mctx = self._shared_loader_obj.module_loader.find_plugin_with_context(
+            name, collection_list=self._task.collections
+        )
+        has_action = (
+            (mctx.resolved and mctx.action_plugin)
+            or self._shared_loader_obj.action_loader.has_plugin(name, collection_list=self._task.collections)
+        )
+        if has_action:
+            return self.action_step(ctx, conf)
+        return self.module_step(ctx, conf)
+
     def module_step(self, ctx, conf):
+        """
+        Execution primitive: runs a plain module on the managed node via
+        C(_execute_module). Do not call directly from plugins — use step(),
+        which dispatches here when the target has no action plugin.
+
+        C(conf) keys: step (log label), name (module FQCN), args (module
+        args), when (skips the step when falsy).
+        """
         if conf.get('step'):
             log_step(conf.get('step'))
         if not boolean(conf.get('when', True)):
@@ -67,6 +106,15 @@ class Action(ActionBase):
         return prefixed(res, prefix), changed
 
     def action_step(self, ctx, conf):
+        """
+        Execution primitive: runs the target's action plugin on the
+        CONTROLLER, replacing the current task's action and args. Do not
+        call directly from plugins — use step(), which dispatches here when
+        the target has an action plugin (e.g. copy, template).
+
+        C(conf) keys: step (log label), name (action FQCN), args (action
+        args), when (skips the step when falsy).
+        """
         new_task = self._task.copy()
         new_task.action = conf.get('name')
         new_task.args = conf.get('args')

@@ -21,7 +21,7 @@ class ActionModule(Action):
         err, conf_changed = self.provision_config(ctx, args.get('configuration'))
         if err:
             return err
-        err, start_changed = self.module_step(ctx, {
+        err, start_changed = self.step(ctx, {
             'step': 'Ensuring journald is started/restarted',
             'name': 'ansible.builtin.systemd',
             'args': {
@@ -40,7 +40,7 @@ class ActionModule(Action):
     def ensure_persistent(self, ctx, persistent):
         if not persistent:
             return None, False
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': "Ensuring journal is persistent",
             'name': 'ansible.builtin.file',
             'args': {
@@ -54,7 +54,7 @@ class ActionModule(Action):
     def provision_config(self, ctx, configuration):
         if not configuration:
             return None, False
-        return self.action_step(ctx, {
+        return self.step(ctx, {
             'step': "Provisioning journald configuration",
             'name': 'ansible.builtin.copy',
             'args': {

@@ -73,7 +73,7 @@ class ActionModule(Action):
             return None, False
         facts = ctx.task_vars.get('ansible_facts') or {}
         os_family = facts.get('os_family')
-        err, deps_changed = self.module_step(ctx, {
+        err, deps_changed = self.step(ctx, {
             'step': 'Ensuring base dependencies are present',
             'name': 'ansible.builtin.package',
             'args': {
@@ -85,7 +85,7 @@ class ActionModule(Action):
             return err, deps_changed
         if os_family == 'RedHat':
             major_version = facts.get('distribution_major_version')
-            err, repo_changed = self.module_step(ctx, {
+            err, repo_changed = self.step(ctx, {
                 'step': 'Adding Docker YUM repository',
                 'name': 'ansible.builtin.yum_repository',
                 'args': {
@@ -104,7 +104,7 @@ class ActionModule(Action):
             distribution = (facts.get('distribution') or '').lower()
             release = facts.get('distribution_release')
             arch = 'amd64' if facts.get('architecture') == 'x86_64' else 'arm64'
-            err, dir_changed = self.module_step(ctx, {
+            err, dir_changed = self.step(ctx, {
                 'step': 'Ensuring keyrings directory exists',
                 'name': 'ansible.builtin.file',
                 'args': {
@@ -117,7 +117,7 @@ class ActionModule(Action):
             })
             if err:
                 return err, dir_changed
-            err, keyring_changed = self.module_step(ctx, {
+            err, keyring_changed = self.step(ctx, {
                 'step': 'Provisioning Docker official GPG key',
                 'name': 'ansible.builtin.get_url',
                 'args': {
@@ -130,7 +130,7 @@ class ActionModule(Action):
             })
             if err:
                 return err, dir_changed or keyring_changed
-            err, repo_changed = self.module_step(ctx, {
+            err, repo_changed = self.step(ctx, {
                 'step': 'Adding Docker APT repository',
                 'name': 'ansible.builtin.apt_repository',
                 'args': {
@@ -148,7 +148,7 @@ class ActionModule(Action):
         return None, deps_changed
 
     def configure_package(self, ctx, package):
-        return self.action_step(ctx, {
+        return self.step(ctx, {
             'step': f"Ensuring docker package '{package}' is installed",
             'name': 'ansible.builtin.package',
             'args': {
@@ -163,7 +163,7 @@ class ActionModule(Action):
         no_proxy = proxy_config.get('noproxy')
         if not http_proxy and not https_proxy and not no_proxy:
             return None, False
-        err, proxy_dir_changed = self.module_step(ctx, {
+        err, proxy_dir_changed = self.step(ctx, {
             'step': 'Provisioning docker.service.d directory',
             'name': 'ansible.builtin.file',
             'args': {
@@ -182,7 +182,7 @@ class ActionModule(Action):
             "NO_PROXY": no_proxy
         }
         env_lines = [f'Environment="{k}={v}"' for k, v in proxies.items() if v]
-        err, proxy_file_changed = self.action_step(ctx, {
+        err, proxy_file_changed = self.step(ctx, {
             'step': 'Provisioning http-proxy.conf',
             'name': 'ansible.builtin.copy',
             'args': {
@@ -194,7 +194,7 @@ class ActionModule(Action):
         })
         if err:
             return err, proxy_dir_changed
-        err, service_changed = self.module_step(ctx, {
+        err, service_changed = self.step(ctx, {
             'step': 'Ensuring docker.service is loaded and started',
             'name':'ansible.builtin.systemd',
             'args':{
@@ -208,7 +208,7 @@ class ActionModule(Action):
         return None, proxy_dir_changed or proxy_file_changed or service_changed
 
     def ensure_docker_running(self, ctx):
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': f"Ensuring docker is started",
             'name': 'ansible.builtin.systemd',
             'args': {
@@ -225,7 +225,7 @@ class ActionModule(Action):
         if not network_name:
             return None, False
         
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': f"Provisioning network: {network_name}. Subnet: {network_subnet}, Gateway: {network_gateway}",
             'name': 'community.docker.docker_network',
             'args': {
@@ -243,7 +243,7 @@ class ActionModule(Action):
         })
 
     def configure_user_and_group(self, ctx):
-        err, group_changed = self.module_step(ctx, {
+        err, group_changed = self.step(ctx, {
             'step': f"Provisioning group docker-machines",
             'name': 'ansible.builtin.group',
             'args': {
@@ -254,7 +254,7 @@ class ActionModule(Action):
         })
         if err:
             return err, False        
-        err, user_changed = self.module_step(ctx, {
+        err, user_changed = self.step(ctx, {
             'step': f"Provisioning user docker-machines",
             'name': 'ansible.builtin.user',
             'args': {
@@ -275,7 +275,7 @@ class ActionModule(Action):
     def configure_users(self, ctx, users):
         any_changed = False
         for u in users:
-            err, changed = self.module_step(ctx, {
+            err, changed = self.step(ctx, {
                 'step': f"Adding user to group docker-machines: {u}",
                 'name': 'ansible.builtin.user',
                 'args': {

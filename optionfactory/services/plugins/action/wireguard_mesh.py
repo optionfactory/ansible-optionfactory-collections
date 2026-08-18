@@ -68,7 +68,7 @@ class ActionModule(Action):
         wireguard_changed = False
         os_family = ctx.task_vars.get('ansible_facts', {}).get('os_family', 'unknown')
         if os_family == 'Debian':
-            err, wireguard_changed = self.action_step(ctx, {
+            err, wireguard_changed = self.step(ctx, {
                 'step': f"Ensuring wireguard is installed",
                 'name': 'ansible.builtin.package',
                 'args': {
@@ -77,7 +77,7 @@ class ActionModule(Action):
                 }
             })
             if err: return err, False
-        err, wireguard_tools_changed = self.action_step(ctx, {
+        err, wireguard_tools_changed = self.step(ctx, {
             'step': f"Ensuring wireguard and iptables are installed",
             'name': 'ansible.builtin.package',
             'args': {
@@ -88,7 +88,7 @@ class ActionModule(Action):
         return err, wireguard_changed or wireguard_tools_changed
 
     def enable_ip_forward(self, ctx):
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': "Ensuring net.ipv4.ip_forward is enabled",
             'name': 'ansible.posix.sysctl',
             'args': {
@@ -101,7 +101,7 @@ class ActionModule(Action):
         })
 
     def configure_wireguard(self, ctx, wg_interface, local, remote_peers, config_template):
-        err, directory_changed = self.module_step(ctx, {
+        err, directory_changed = self.step(ctx, {
             'step': "Ensuring /etc/wireguard directory is present",
             'name': 'ansible.builtin.file',
             'args': {
@@ -120,7 +120,7 @@ class ActionModule(Action):
             'local': local,
             'remote_peers': remote_peers,
         })
-        err, config_changed = self.action_step(svc_ctx, {
+        err, config_changed = self.step(svc_ctx, {
             'step': f"Ensuring {wg_interface} configuration is up to date",
             'name': 'ansible.builtin.template',
             'args': {
@@ -133,7 +133,7 @@ class ActionModule(Action):
         })
         if err:
             return err, False
-        err, service_changed = self.module_step(ctx, {
+        err, service_changed = self.step(ctx, {
             'step': 'Ensuring service is started and updated',
             'name': 'ansible.builtin.systemd',
             'args': {
@@ -157,7 +157,7 @@ class ActionModule(Action):
         if maybe_mtu:
             driver_options["com.docker.network.driver.mtu"] = str(maybe_mtu)        
 
-        return self.module_step(ctx, {
+        return self.step(ctx, {
             'step': f'Ensuring docker mesh network {docker_interface} is present',
             'name': 'community.docker.docker_network',
             'args': {
@@ -171,7 +171,7 @@ class ActionModule(Action):
 
 
     def configure_docker(self, ctx, wg_interface):
-        err, directory_changed = self.module_step(ctx, {
+        err, directory_changed = self.step(ctx, {
             'step': "Ensuring Docker systemd override directory exists",
             'name': 'ansible.builtin.file',
             'args': {
@@ -184,7 +184,7 @@ class ActionModule(Action):
         })
         if err:
             return err, False
-        err, overrides_changed = self.action_step(ctx, {
+        err, overrides_changed = self.step(ctx, {
             'step': "Ensuring Docker waits for WireGuard interface",
             'name': 'ansible.builtin.copy',
             'args': {
@@ -202,7 +202,7 @@ class ActionModule(Action):
         if err:
             return err, False
         if overrides_changed:
-            err, _ = self.module_step(ctx, {
+            err, _ = self.step(ctx, {
                 'step': "Reloading systemd daemon to apply Docker dependency",
                 'name': 'ansible.builtin.systemd',
                 'args': {

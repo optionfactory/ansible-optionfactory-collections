@@ -43,7 +43,7 @@ export PROMPT_COMMAND="_prompt"
 class ActionModule(Action):
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
-        err, changed = self.action_step(ctx, {
+        err, changed = self.step(ctx, {
             'step': 'Provisioning /etc/profile.d/ps1.sh',
             'name': 'ansible.builtin.copy',
             'args': {
