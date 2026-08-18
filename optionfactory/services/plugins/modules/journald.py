@@ -44,7 +44,7 @@ msg:
   description: Summary of the actions taken by the plugin.
   type: str
   returned: always
-  sample: "Journald configured."
+  sample: "Journald configuration provisioned."
 '''
 
 def main():

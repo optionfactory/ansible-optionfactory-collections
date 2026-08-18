@@ -26,7 +26,7 @@ msg:
     description: A summary message of the operations performed.
     type: str
     returned: always
-    sample: "legopfa-renewal service and timer successfully configured."
+    sample: "Legopfa configuration provisioned."
 '''
 
 def main():

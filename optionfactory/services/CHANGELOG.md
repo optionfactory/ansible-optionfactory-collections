@@ -7,6 +7,7 @@
 - **[BREAKING]** [ENH] Replaced the bundled `network_service.j2` template with `command_service.j2`: plain services use the `command` block with `exec` (mandatory) and `args`.
 - [ENH] Per-engine template defaults: `docker_service.j2`, `podman_service.j2`, `command_service.j2`.
 - [ENH] Updated documentation and molecule tests.
+- **[BREAKING]** [ENH] `optionfactory.services.docker` now configures the official Docker repository automatically when `package` is `docker-ce`; the bundled `docker_repository` role has been removed.
 
 ## [4.1.0]
 - Added the `service_image` argument used to prefetch docker images in `optionfactory.services.bundle` and `optionfactory.services.service` plugins.

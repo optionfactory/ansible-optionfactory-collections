@@ -4,7 +4,7 @@ This is a set of collections used by OptionFactory Ansible manifests.
 
 ## Requirements
 
-Collections can be used by Ansible &gt;= 2.9, but Ansible &gt;= 2.11 is recommended
+Collections require Ansible >= 2.15.0
 
 ## Using collections
 
@@ -70,7 +70,7 @@ This action is a powerful tool for defining an entire service in a single operat
 
 #### `optionfactory.services.docker`
 Automates Docker installation and configuration, including system proxies and Docker networks.
-*Notes: when using docker-ce for distros missing the package, ensure that the docker_repository role is included*
+*Notes: with `package: docker-ce` (default), the official Docker repository is configured automatically (Debian and RedHat families); fact gathering is required.*
 
 **Example:**
 ```yml
@@ -171,18 +171,18 @@ Configures a full-mesh WireGuard VPN topology.
     host_ip: "10.1.1.1"
     peers:
       - host_ip: "10.1.1.1"
-        tunnel_cidr: "10.0.0.1/24"
-        docker_subnet: "172.18.1.0/24"
+        wg_tunnel_cidr: "10.0.0.1/24"
+        docker_mesh_subnet: "172.18.1.0/24"
         private_key: "{{ vault_node_a_priv }}"
         public_key: "PubKeyA="
       - host_ip: "10.1.1.2"
-        tunnel_cidr: "10.0.0.2/24"
-        docker_subnet: "172.18.2.0/24"
+        wg_tunnel_cidr: "10.0.0.2/24"
+        docker_mesh_subnet: "172.18.2.0/24"
         private_key: "{{ vault_node_b_priv }}"
         public_key: "PubKeyB="
       - host_ip: "10.1.1.3"
-        tunnel_cidr: "10.0.0.3/24"
-        docker_subnet: "172.18.3.0/24"
+        wg_tunnel_cidr: "10.0.0.3/24"
+        docker_mesh_subnet: "172.18.3.0/24"
         private_key: "{{ vault_node_c_priv }}"
         public_key: "PubKeyC="
 ```

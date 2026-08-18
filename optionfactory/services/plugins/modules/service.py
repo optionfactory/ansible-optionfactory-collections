@@ -144,7 +144,7 @@ EXAMPLES = r'''
 
 RETURN = r'''
 msg:
-    description: A summary of the bundle deployment.
+    description: A summary of the service deployment.
     type: str
     returned: always
 '''

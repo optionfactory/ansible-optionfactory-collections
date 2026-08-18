@@ -35,6 +35,9 @@ class ActionModule(Action):
 
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
+        err, repo_changed = self.configure_repository(ctx, args.get('package'))
+        if err:
+            return err
         err, install_changed = self.configure_package(ctx, args.get('package'))
         if err: 
             return err
@@ -57,6 +60,7 @@ class ActionModule(Action):
             'msg': "Docker setup completed.",
             'failed': False,
             'changed': (
+                repo_changed or
                 install_changed or
                 proxy_changed or
                 ug_changed or
@@ -64,6 +68,85 @@ class ActionModule(Action):
                 network_changed
             )
         }
+    def configure_repository(self, ctx, package):
+        if package != 'docker-ce':
+            return None, False
+        facts = ctx.task_vars.get('ansible_facts') or {}
+        os_family = facts.get('os_family')
+        err, deps_changed = self.module_step(ctx, {
+            'step': 'Ensuring base dependencies are present',
+            'name': 'ansible.builtin.package',
+            'args': {
+                'name': ['ca-certificates', 'curl', 'gnupg'],
+                'state': 'present'
+            }
+        })
+        if err:
+            return err, deps_changed
+        if os_family == 'RedHat':
+            major_version = facts.get('distribution_major_version')
+            err, repo_changed = self.module_step(ctx, {
+                'step': 'Adding Docker YUM repository',
+                'name': 'ansible.builtin.yum_repository',
+                'args': {
+                    'repo_file': 'docker-ce',
+                    'name': 'docker-ce-stable',
+                    'description': 'Docker CE Stable - $basearch',
+                    'baseurl': f"https://download.docker.com/linux/centos/{major_version}/$basearch/stable",
+                    'enabled': True,
+                    'gpgcheck': True,
+                    'gpgkey': 'https://download.docker.com/linux/centos/gpg',
+                    'state': 'present'
+                }
+            })
+            return err, deps_changed or repo_changed
+        if os_family == 'Debian':
+            distribution = (facts.get('distribution') or '').lower()
+            release = facts.get('distribution_release')
+            arch = 'amd64' if facts.get('architecture') == 'x86_64' else 'arm64'
+            err, dir_changed = self.module_step(ctx, {
+                'step': 'Ensuring keyrings directory exists',
+                'name': 'ansible.builtin.file',
+                'args': {
+                    'path': '/etc/apt/keyrings',
+                    'state': 'directory',
+                    'mode': '0755',
+                    'owner': 'root',
+                    'group': 'root'
+                }
+            })
+            if err:
+                return err, dir_changed
+            err, keyring_changed = self.module_step(ctx, {
+                'step': 'Provisioning Docker official GPG key',
+                'name': 'ansible.builtin.get_url',
+                'args': {
+                    'url': f"https://download.docker.com/linux/{distribution}/gpg",
+                    'dest': '/etc/apt/keyrings/docker.asc',
+                    'mode': '0644',
+                    'owner': 'root',
+                    'group': 'root'
+                }
+            })
+            if err:
+                return err, dir_changed or keyring_changed
+            err, repo_changed = self.module_step(ctx, {
+                'step': 'Adding Docker APT repository',
+                'name': 'ansible.builtin.apt_repository',
+                'args': {
+                    'filename': 'docker',
+                    'repo': (
+                        f"deb [arch={arch} signed-by=/etc/apt/keyrings/docker.asc]"
+                        f" https://download.docker.com/linux/{distribution}"
+                        f" {release} stable"
+                    ),
+                    'state': 'present',
+                    'update_cache': True
+                }
+            })
+            return err, deps_changed or dir_changed or keyring_changed or repo_changed
+        return None, deps_changed
+
     def configure_package(self, ctx, package):
         return self.action_step(ctx, {
             'step': f"Ensuring docker package '{package}' is installed",

@@ -6,3 +6,5 @@ action_groups:
     - journald
     - legopfa
     - ps1
+    - service
+    - wireguard_mesh

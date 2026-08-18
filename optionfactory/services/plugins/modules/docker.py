@@ -6,6 +6,7 @@ module: docker
 short_description: Installs and configures Docker, users, proxies, and networks.
 description:
     - Installs docker-ce package.
+    - Configures the official upstream Docker repository when package is 'docker-ce' (Debian and RedHat families).
     - Configures HTTP or HTTPS proxy for the Docker systemd daemon if provided.
     - Creates the 'docker-machines' user and group.
     - Appends the target users to 'docker' and 'docker-machines' groups.
@@ -23,13 +24,13 @@ options:
     users:
         description:
             - A list of usernames to append to the 'docker' and 'docker-machines' groups.
-        required: true
         type: list
         elements: str
+        default: []
     proxy:
         description:
             - Dictionary containing HTTP or HTTPS proxy configuration for the Docker daemon.
-            - If defined, you must provide exactly one of C(http) or C(https).
+            - At least one of C(http), C(https) or C(noproxy) must be provided.
         required: false
         type: dict
         suboptions:
@@ -88,7 +89,7 @@ msg:
     description: A summary message of the operations performed.
     type: str
     returned: always
-    sample: "Docker setup completed. Processed 2 user(s). Proxy configured: True. Network 'myapp_network' configured."
+    sample: "Docker setup completed."
 '''
 
 

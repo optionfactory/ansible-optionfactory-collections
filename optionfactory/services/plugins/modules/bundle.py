@@ -140,7 +140,7 @@ options:
                 description: "Group for this specific directory. Overrides the default group."
             when:
                 type: bool
-                descriptiom: "If this rule should be applied."
+                description: "If this rule should be applied."
                 default: True
     files:
         type: list
@@ -173,7 +173,7 @@ options:
                 description: "Group for this specific file. Overrides the default group."
             when:
                 type: bool
-                descriptiom: "If this rule should be applied."
+                description: "If this rule should be applied."
                 default: True
     templates:
         type: list
@@ -191,7 +191,7 @@ options:
                 description: "Remote destination path."
             mode:
                 type: str
-                default: "0600"
+                default: "0640"
                 description: "Permissions for the template file."
             owner:
                 type: str
@@ -201,7 +201,7 @@ options:
                 description: "Group for this specific template. Overrides the default group."
             when:
                 type: bool
-                descriptiom: "If this rule should be applied."
+                description: "If this rule should be applied."
                 default: True
 '''
 

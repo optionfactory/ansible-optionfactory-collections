@@ -5,8 +5,8 @@ module: wireguard_mesh
 short_description: Configures a full-mesh WireGuard VPN topology.
 description:
     - This is an action plugin that automatically configures a WireGuard mesh network.
-    - It installs necessary packages, enables IPv4 forwarding, generates the wg interface 
-      configuration, the docker mesh network, manages the systemd service, configures docker deamon to start 
+    - It installs necessary packages, enables IPv4 forwarding, generates the wg interface
+      configuration, the docker mesh network, manages the systemd service, configures docker daemon to start
       after the configured wg-quick service.
 
 options:
@@ -49,11 +49,11 @@ options:
             private_key:
                 type: str
                 required: true
-                description: "The private key for the peer. (your can use 'wg genkey | tee /dev/tty | wg pubkey')"
+                description: "The private key for the peer. (you can use 'wg genkey | tee /dev/tty | wg pubkey')"
             public_key:
                 type: str
                 required: true
-                description: "The public key for the peer. (your can use 'wg genkey | tee /dev/tty | wg pubkey')"
+                description: "The public key for the peer. (you can use 'wg genkey | tee /dev/tty | wg pubkey')"
 '''
 
 EXAMPLES = r'''
