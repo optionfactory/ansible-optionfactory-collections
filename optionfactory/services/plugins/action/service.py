@@ -5,26 +5,28 @@ from ansible_collections.optionfactory.services.plugins.module_utils.actions imp
 
 class ActionModule(Action):
     ARGUMENT_SPEC = {
-        'service_name': {'type': 'str', 'required': True},
-        'service_image': {'type': 'str'},
-        'service_template': {'type': 'str', 'default': 'docker_service.j2'},
-        'service_args': {'type': 'str', 'default': ''},
+        'name': {'type': 'str', 'required': True},
+        'image': {'type': 'str', 'required': True},
+        'opts': {'type': 'str', 'default': ''},
+        'args': {'type': 'str', 'default': ''},
+        'template': {'type': 'str', 'default': 'docker_service.j2'},
     }
 
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
-        service_name = args.get('service_name')
-        service_image = args.get('service_image')
-        service_template = args.get('service_template')
-        service_args = args.get('service_args')
-        if not service_template:
-            raise AnsibleActionFail("The 'service_template' parameter cannot be empty.")
+        name = args.get('name')
+        image = args.get('image')
+        opts = args.get('opts')
+        sargs = args.get('args')
+        template = args.get('template')
+        if not template:
+            raise AnsibleActionFail("The 'template' parameter cannot be empty.")
 
-        err, image_changed = self.prefetch_image(ctx, service_image)
+        err, image_changed = self.prefetch_image(ctx, image)
         if err: 
              return err
         
-        err, systemd_changed = self.provision_systemd_unit(ctx, service_name, service_args, service_template, service_image)
+        err, systemd_changed = self.provision_systemd_unit(ctx, name, image, opts, sargs, template)
         if err:
             return err
 
@@ -40,7 +42,7 @@ class ActionModule(Action):
             if err:
                 return err
         return {
-            'msg': f"Service provisioned: {service_name}",
+            'msg': f"Service provisioned: {name}",
             'failed': False,
             'changed': image_changed or systemd_changed or reload_changed,
         }
@@ -57,22 +59,23 @@ class ActionModule(Action):
             }
         })
     
-    def provision_systemd_unit(self, ctx, service_name, service_args, service_template, service_image):
+    def provision_systemd_unit(self, ctx, name, image, opts, args, service_template):
         err, actual_template_src = self.find_template(service_template)
         if err:
             return err
         svc_ctx = ctx.with_updated_vars({
-            'service_name': service_name,
-            'service_args': service_args,
-            'service_image': service_image,
+            'name': name,
+            'opts': opts,
+            'image': image,
+            'args': args,
         })
 
         return self.action_step(svc_ctx, {
-            'step': f"Configuring systemd unit: {service_name}.service",
+            'step': f"Configuring systemd unit: {name}.service",
             'name': 'ansible.builtin.template',
             'args': {
                 'src': actual_template_src,
-                'dest': f"/etc/systemd/system/{service_name}.service",
+                'dest': f"/etc/systemd/system/{name}.service",
                 'owner': 'root',
                 'group': 'root',
                 'mode': '0644'

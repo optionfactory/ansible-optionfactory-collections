@@ -39,7 +39,8 @@ This action is a powerful tool for defining an entire service in a single operat
 ```yml
 - name: Provision a service bundle
   optionfactory.services.bundle:
-    service_name: my-app
+    name: my-app
+    image: "myregistry/my-app:1.0"
     owner: myuser
     group: mygroup
     dirs:
@@ -50,11 +51,15 @@ This action is a powerful tool for defining an entire service in a single operat
     templates:
       - src: my-app.j2
         dest: /etc/my-app.conf
-    service_args: "--config /etc/my-app.conf"
+    opts: "--network mynet --ip 172.18.0.10"
+    args: "--config /etc/my-app.conf"
 ```
 
 **Main parameters:**
-- `service_name`: (mandatory) Name of the systemd service.
+- `name`: (mandatory) Name of the systemd service.
+- `image`: (mandatory) The container image (or executable, for non-container templates). Prefetched via `community.docker.docker_image` and injected into the template context.
+- `opts`, `args`: Options and arguments injected into the template context (e.g. docker run options and container command arguments).
+- `template`: Name of the systemd unit template to use (default: `docker_service.j2`, searches in Ansible paths or plugin defaults).
 - `dirs`, `files`, `templates`: Lists of resources to be created/distributed.
 - `owner`, `group`: Default owners (default: `docker-machines`).
 
@@ -125,15 +130,18 @@ A simplified version of `bundle` focused only on creating a systemd unit from a 
 ```yml
 - name: Provision a simple service
   optionfactory.services.service:
-    service_name: my-simple-service
-    service_template: docker_service.j2
-    service_args: "--port 8080"
+    name: my-simple-service
+    image: "optionfactory/debian13-jdk21-keycloak2:999"
+    template: docker_service.j2
+    opts: "--network mynet"
+    args: "start --optimized"
 ```
 
 **Parameters:**
-- `service_name`: (mandatory) Name of the service.
-- `service_template`: Name of the template to use (searches in Ansible paths or plugin defaults).
-- `service_args`: Variables passed to the template.
+- `name`: (mandatory) Name of the service.
+- `image`: (mandatory) The container image (or executable, for non-container templates). Prefetched via `community.docker.docker_image` and injected into the template context.
+- `opts`, `args`: Options and arguments injected into the template context (e.g. docker run options and container command arguments).
+- `template`: Name of the template to use (default: `docker_service.j2`, searches in Ansible paths or plugin defaults).
 
 
 #### `optionfactory.services.wireguard_mesh`

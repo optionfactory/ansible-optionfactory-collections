@@ -6,35 +6,41 @@ short_description: Deploy a service.
 description:
     - This is an action plugin that configures a systemd service.
 options:
-    service_name:
+    name:
         type: str
         required: true
         description: "The name of the systemd service."
-    service_image:
+    image:
+        type: str
+        required: true
+        description: "The docker image to be prefetched. Also injected into the template context."
+    opts:
         type: str
         required: false
-        description: "The docker image to be prefetched. Also injected into the template context."
-    service_template:
+        default: ''
+        description: "Docker options passed to the systemd service template."
+    args:
+        type: str
+        required: false
+        default: ''
+        description: "Arguments passed to the systemd service template."
+    template:
         type: str
         required: false
         default: "docker_service.j2"
         description: "Path to the Jinja2 template for the systemd .service file."
-    service_args:
-        type: str
-        required: false
-        description: "Arguments passed to the systemd service template."
 '''
 
 EXAMPLES = r'''
 - name: Deploy keycloak service
   optionfactory.services.service:
-    service_name: keycloak-myapp
-    service_args: >
+    name: keycloak-myapp
+    image: optionfactory/debian13-jdk21-keycloak2:999
+    opts: >
         --network myapp
         --ip 172.18.0.14
         --mount type=bind,source=/opt/myapp/keycloak/deployments/keycloak-myapp-custom.jar,target=/opt/keycloak/providers/keycloak-myapp-custom.jar
         --mount type=bind,source=/opt/myapp/keycloak/conf/keycloak.conf,target=/opt/keycloak/conf/keycloak.conf
-        optionfactory/debian13-jdk21-keycloak2:999
 '''
 
 RETURN = r'''

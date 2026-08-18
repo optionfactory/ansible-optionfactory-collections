@@ -1,2 +1,4 @@
 .venv/
 builds/
+__pycache__/
+*.py[cod]

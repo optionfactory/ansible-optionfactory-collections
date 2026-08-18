@@ -22,8 +22,6 @@ lint:
 update-deps:
 	$(VENV_BIN)/pip install --upgrade ansible-core molecule ansible-lint
 
-
-
 publish:
 	@mkdir -p builds/
 	@$(VENV_BIN)/ansible-galaxy collection build optionfactory/services/ --output-path builds/ --force

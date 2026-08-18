@@ -1,14 +1,14 @@
 [Unit]
-Description=docker {{ service_name }} container service
+Description=docker {{ name }} container service
 Wants=docker.service
 Requires=docker.service
 
 [Service]
 Restart=always
 RestartSec=5
-ExecStartPre=-/usr/bin/docker rm -f {{ service_name }}
-ExecStart=/usr/bin/docker run --name {{ service_name }} --log-driver=none {{ service_args }}
-ExecStop=-/usr/bin/docker rm -f {{ service_name }}
+ExecStartPre=-/usr/bin/docker rm -f {{ name }}
+ExecStart=/usr/bin/docker run --name {{ name }} --log-driver=none {{ opts }} {{ image }} {{ args }}
+ExecStop=-/usr/bin/docker rm -f {{ name }}
 
 [Install]
 WantedBy=multi-user.target
