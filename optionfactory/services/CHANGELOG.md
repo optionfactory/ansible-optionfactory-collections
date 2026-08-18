@@ -1,12 +1,12 @@
 # Changelog
 
 ## [5.0.0]
-- **[BREAKING]** [ENH] Renamed the arguments of `optionfactory.services.bundle` and `optionfactory.services.service`: `service_name` -> `name`, `service_image` -> `image`, `service_template` -> `template`, `service_args` -> `opts` + `args`.
-- **[BREAKING]** [ENH] The image is no longer passed inside the arguments string: it must be specified via the new mandatory `image` argument, which is also prefetched and injected into the template context.
-- **[BREAKING]** [ENH] `image` is now mandatory in `optionfactory.services.bundle` and `optionfactory.services.service`.
-- [ENH] Split the former `service_args` into `opts` (container/service options) and `args` (command arguments), rendered by the bundled templates as `{{ opts }} {{ image }} {{ args }}`.
-- [ENH] Updated the bundled `docker_service.j2`, `podman_service.j2` and `network_service.j2` templates to the new context variables (`name`, `image`, `opts`, `args`).
-- [ENH] Updated documentation and molecule tests to the new argument names.
+- **[BREAKING]** [NEW] Added engine blocks to `optionfactory.services.bundle` and `optionfactory.services.service`: exactly one of `container` or `command` is required, replacing the former flat arguments (`service_name` -> `name`; `service_image`/`service_args` -> the `image`/`opts`/`args` block options).
+- [NEW] The `container` block selects the engine via `engine` (`docker` (default) or `podman`) and supports `image` (mandatory, prefetched and injected into the template context), `opts`, `args`, `env` (a `KEY: value` mapping, rendered as `--env`), `network`, `ip` (rendered as `--network`/`--ip`), `publish` (rendered as `-p`, empty entries skipped), `mounts` (rendered as `--mount type=bind,...`, each supports a `when` conditional) and `volumes` (rendered as `--volume`).
+- **[BREAKING]** [ENH] The image is no longer part of the options string: it must be specified via `image`.
+- **[BREAKING]** [ENH] Replaced the bundled `network_service.j2` template with `command_service.j2`: plain services use the `command` block with `exec` (mandatory) and `args`.
+- [ENH] Per-engine template defaults: `docker_service.j2`, `podman_service.j2`, `command_service.j2`.
+- [ENH] Updated documentation and molecule tests.
 
 ## [4.1.0]
 - Added the `service_image` argument used to prefetch docker images in `optionfactory.services.bundle` and `optionfactory.services.service` plugins.

@@ -9,10 +9,19 @@
     - name: Test the services.bundle plugin
       optionfactory.services.bundle:
         name: testapp
-        image: "optionfactory/debian13-jdk21-keycloak2:{{ images_version }}"
-        opts: >
-          --network testapp
-          --ip 172.18.0.11
+        container:
+          image: "optionfactory/debian13-jdk21-keycloak2:{{ images_version }}"
+          network: testapp
+          ip: "172.18.0.11"
+          env:
+            TEST_VAR: "{{ a_var }}"
+          mounts:
+            - source: /opt/testapp/conf
+              target: /opt/testapp/conf
+              readonly: true
+            - source: /opt/testapp/bin
+              target: /opt/testapp/bin
+              when: false
         dirs:
           - dest: /opt/testapp/
           - dest: /opt/testapp/bin
@@ -24,3 +33,10 @@
             content: >
               key=value
               key2={{ a_var }}
+
+    - name: Test the services.service plugin with a command service
+      optionfactory.services.service:
+        name: testapp-command
+        command:
+          exec: /usr/bin/sleep
+          args: infinity

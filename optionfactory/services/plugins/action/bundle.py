@@ -1,7 +1,7 @@
 import os
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.errors import AnsibleActionFail, AnsibleError
-from ansible_collections.optionfactory.services.plugins.module_utils.actions import Action, failure
+from ansible_collections.optionfactory.services.plugins.module_utils.actions import Action, failure, resolve_engine, service_vars
 
 
 class ActionModule(Action):
@@ -9,10 +9,40 @@ class ActionModule(Action):
         'owner': {'type': 'str', 'default': 'docker-machines'},
         'group': {'type': 'str', 'default': 'docker-machines'},
         'name': {'type': 'str', 'required': True},
-        'image': {'type': 'str', 'required': True},
-        'opts': {'type': 'str', 'default': ''},
-        'args': {'type': 'str', 'default': ''},
-        'template': {'type': 'str', 'default': 'docker_service.j2'},
+        'container': {
+            'type': 'dict',
+            'options': {
+                'engine': {'type': 'str', 'default': 'docker', 'choices': ['docker', 'podman']},
+                'image': {'type': 'str', 'required': True},
+                'opts': {'type': 'str', 'default': ''},
+                'args': {'type': 'str', 'default': ''},
+                'network': {'type': 'str'},
+                'ip': {'type': 'str'},
+                'env': {'type': 'dict', 'default': {}},
+                'publish': {'type': 'list', 'elements': 'str', 'default': []},
+                'mounts': {
+                    'type': 'list',
+                    'elements': 'dict',
+                    'default': [],
+                    'options': {
+                        'source': {'type': 'str', 'required': True},
+                        'target': {'type': 'str', 'required': True},
+                        'readonly': {'type': 'bool', 'default': False},
+                        'when': {'type': 'bool', 'default': True}
+                    }
+                },
+                'volumes': {'type': 'list', 'elements': 'str', 'default': []},
+                'template': {'type': 'str'},
+            },
+        },
+        'command': {
+            'type': 'dict',
+            'options': {
+                'exec': {'type': 'str', 'required': True},
+                'args': {'type': 'str', 'default': ''},
+                'template': {'type': 'str', 'default': 'command_service.j2'},
+            },
+        },
         'dirs': {
             'type': 'list',
             'elements': 'dict',
@@ -57,6 +87,10 @@ class ActionModule(Action):
             }
         }
     }
+    VALIDATOR_KWARGS = {
+        'mutually_exclusive': [('container', 'command')],
+        'required_one_of': [('container', 'command')],
+    }
 
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
@@ -64,21 +98,19 @@ class ActionModule(Action):
         group = args.get('group')
 
         name = args.get('name')
-        image = args.get('image')
-        opts = args.get('opts')
-        sargs = args.get('args')
-        template = args.get('template')
+        engine, block = resolve_engine(args)
+        if not block.get('template'):
+            raise AnsibleActionFail("The 'template' parameter cannot be empty.")
 
         dirs = args.get('dirs')
         files = args.get('files')
         templates = args.get('templates')
 
-        if not template:
-            raise AnsibleActionFail("The 'template' parameter cannot be empty.")
-
-        err, image_changed = self.prefetch_image(ctx, image)
-        if err: 
-             return err
+        image_changed = False
+        if engine == 'container':
+            err, image_changed = self.prefetch_image(ctx, block['image'])
+            if err:
+                return err
         err, dir_changed = self.provision_dirs(ctx, dirs, owner, group)
         if err:
             return err
@@ -91,7 +123,7 @@ class ActionModule(Action):
         if err:
             return err
 
-        err, systemd_changed = self.provision_systemd_unit(ctx, name, image, opts, sargs, template)
+        err, systemd_changed = self.provision_systemd_unit(ctx, name, engine, block)
         if err:
             return err
         changed = (image_changed or dir_changed or file_changed or template_changed or systemd_changed)
@@ -122,7 +154,7 @@ class ActionModule(Action):
             'args': {
                 'name': image,
                 'source': 'pull',
-                'force_source': False                
+                'force_source': False
             }
         })
 
@@ -202,16 +234,11 @@ class ActionModule(Action):
                 any_changed = True
         return None, any_changed
 
-    def provision_systemd_unit(self, ctx, name, image, opts, args, service_template):
-        err, actual_template_src = self.find_template(service_template)
+    def provision_systemd_unit(self, ctx, name, engine, block):
+        err, actual_template_src = self.find_template(block['template'])
         if err:
             return err
-        svc_ctx = ctx.with_updated_vars({
-            'name': name,
-            'opts': opts,
-            'image': image,
-            'args': args,
-        })
+        svc_ctx = ctx.with_updated_vars(service_vars(name, engine, block))
 
         return self.action_step(svc_ctx, {
             'step': f"Configuring systemd unit: {name}.service",

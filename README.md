@@ -40,7 +40,14 @@ This action is a powerful tool for defining an entire service in a single operat
 - name: Provision a service bundle
   optionfactory.services.bundle:
     name: my-app
-    image: "myregistry/my-app:1.0"
+    container:
+      image: "myregistry/my-app:1.0"
+      network: mynet
+      ip: 172.18.0.10
+      env:
+        TZ: Europe/Rome
+      opts: "--restart unless-stopped"
+      args: "--config /etc/my-app.conf"
     owner: myuser
     group: mygroup
     dirs:
@@ -51,15 +58,13 @@ This action is a powerful tool for defining an entire service in a single operat
     templates:
       - src: my-app.j2
         dest: /etc/my-app.conf
-    opts: "--network mynet --ip 172.18.0.10"
-    args: "--config /etc/my-app.conf"
 ```
 
 **Main parameters:**
 - `name`: (mandatory) Name of the systemd service.
-- `image`: (mandatory) The container image (or executable, for non-container templates). Prefetched via `community.docker.docker_image` and injected into the template context.
-- `opts`, `args`: Options and arguments injected into the template context (e.g. docker run options and container command arguments).
-- `template`: Name of the systemd unit template to use (default: `docker_service.j2`, searches in Ansible paths or plugin defaults).
+- `container`, `command`: Engine blocks — exactly one is required.
+  - `container`: containerized service. `engine` (`docker` (default) or `podman`), `image` (mandatory, prefetched via `community.docker.docker_image`), `opts`, `args`, `env` (a `KEY: value` mapping, rendered as `--env`), `network`, `ip` (rendered as `--network`/`--ip`), `publish` (rendered as `-p`, empty entries ignored), `mounts` (rendered as `--mount type=bind,...`, each supports `when`), `volumes` (rendered as `--volume`, empty entries ignored), `template` (default: `<engine>_service.j2`). Empty `opts`/`network`/`ip` values are ignored, enabling Jinja conditionals that yield empty strings.
+  - `command`: runs a plain (non-container) command as a service after the network is online. `exec` (mandatory), `args`, `template` (default: `command_service.j2`).
 - `dirs`, `files`, `templates`: Lists of resources to be created/distributed.
 - `owner`, `group`: Default owners (default: `docker-machines`).
 
@@ -131,17 +136,29 @@ A simplified version of `bundle` focused only on creating a systemd unit from a 
 - name: Provision a simple service
   optionfactory.services.service:
     name: my-simple-service
-    image: "optionfactory/debian13-jdk21-keycloak2:999"
-    template: docker_service.j2
-    opts: "--network mynet"
-    args: "start --optimized"
+    container:
+      image: "optionfactory/debian13-jdk21-keycloak2:999"
+      network: mynet
+      args: "start --optimized"
+
+- name: Provision a podman service
+  optionfactory.services.service:
+    name: my-podman-service
+    container:
+      engine: podman
+      image: "registry.example.com/my-app:2"
+
+- name: Provision a command service
+  optionfactory.services.service:
+    name: my-agent
+    command:
+      exec: /usr/bin/my-agent
+      args: "--config /etc/my-agent.conf"
 ```
 
 **Parameters:**
 - `name`: (mandatory) Name of the service.
-- `image`: (mandatory) The container image (or executable, for non-container templates). Prefetched via `community.docker.docker_image` and injected into the template context.
-- `opts`, `args`: Options and arguments injected into the template context (e.g. docker run options and container command arguments).
-- `template`: Name of the template to use (default: `docker_service.j2`, searches in Ansible paths or plugin defaults).
+- `container`, `command`: Engine blocks — exactly one is required (same shape as `bundle`).
 
 
 #### `optionfactory.services.wireguard_mesh`

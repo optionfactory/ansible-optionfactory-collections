@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Restart=always
 RestartSec=5
-ExecStart={{ opts }} {{ image }} {{ args }}
+ExecStart={{ exec }} {{ args }}
 
 [Install]
 WantedBy=multi-user.target

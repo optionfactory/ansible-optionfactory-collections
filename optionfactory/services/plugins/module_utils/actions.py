@@ -46,6 +46,7 @@ class Context:
 
 class Action(ActionBase):
     ARGUMENT_SPEC = {}
+    VALIDATOR_KWARGS = {}
 
     def module_step(self, ctx, conf):
         if conf.get('step'):
@@ -109,5 +110,44 @@ class Action(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         super(Action, self).run(tmp, task_vars)
-        validation_result, valid_args = self.validate_argument_spec(self.ARGUMENT_SPEC)
+        validation_result, valid_args = self.validate_argument_spec(self.ARGUMENT_SPEC, **self.VALIDATOR_KWARGS)
         return valid_args, Context(tmp, task_vars)
+
+
+SERVICE_ENGINES = ('container', 'command')
+
+
+def resolve_engine(args):
+    engine = next(e for e in SERVICE_ENGINES if args.get(e))
+    block = dict(args.get(engine))
+    if engine == 'container' and not block.get('template'):
+        block['template'] = f"{block.get('engine', 'docker')}_service.j2"
+    return engine, block
+
+
+def service_vars(name, engine, block):
+    vars = {'name': name, **block}
+    if engine == 'container':
+        flags = []
+        for opt in ('network', 'ip'):
+            if block.get(opt):
+                flags.append(f"--{opt} {block[opt]}")
+        for k, val in (block.get('env') or {}).items():
+            flags.append(f"--env {k}={val}")
+        for p in block.get('publish') or []:
+            p = (p or '').strip()
+            if p:
+                flags.append(f"-p {p}")
+        for m in block.get('mounts') or []:
+            if not boolean(m.get('when', True)):
+                continue
+            flag = f"--mount type=bind,source={m['source']},target={m['target']}"
+            if m.get('readonly'):
+                flag += ',readonly'
+            flags.append(flag)
+        for v in block.get('volumes') or []:
+            v = (v or '').strip()
+            if v:
+                flags.append(f"--volume {v}")
+        vars['opts'] = ' '.join(filter(None, [' '.join(flags), (block.get('opts') or '').strip()]))
+    return vars
