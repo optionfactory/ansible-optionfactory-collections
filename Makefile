@@ -4,14 +4,17 @@ GALAXY_API_KEY ?= ""
 
 deps:
 	python3 -m venv .venv
-	$(VENV_BIN)/pip install ansible-core molecule ansible-lint	
+	$(VENV_BIN)/pip install ansible-core molecule ansible-lint pytest
 
 examples:
 	for x in */*/examples.yml;\
 		do ansible-playbook $$x --check ;\
-	done
+		done
 
-test:
+unit:
+	$(VENV_BIN)/python -m pytest optionfactory/services/tests -v
+
+test: unit
 	$(VENV_BIN)/ansible-galaxy collection install optionfactory/services/ --force
 	$(VENV_BIN)/molecule test
 

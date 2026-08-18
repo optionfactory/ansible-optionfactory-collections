@@ -19,3 +19,5 @@ tags:
   - core
 dependencies:
   "community.docker": ">=3.4.0"
+build_ignore:
+  - tests
