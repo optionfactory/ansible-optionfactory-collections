@@ -55,4 +55,14 @@ def test_ps1_profile():
     assert conf["name"] == "ansible.builtin.copy"
     assert conf["args"]["dest"] == "/etc/profile.d/ps1.sh"
     assert conf["args"]["mode"] == "0644"
-    assert "PROMPT_COMMAND" in conf["args"]["content"]
+    content = conf["args"]["content"]
+    assert "PROMPT_COMMAND" in content
+    assert "/.dockerenv" in content
+    assert "/run/.containerenv" in content
+    assert "git branch --show-current" in content
+    assert "git rev-parse --short HEAD" in content
+    assert "HOSTNAME_COLOR" in content
+    assert "✔" in content
+    assert "✘" in content
+    assert "\\001" in content
+    assert "hg " not in content

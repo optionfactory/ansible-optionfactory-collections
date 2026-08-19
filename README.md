@@ -121,10 +121,10 @@ Manages `systemd-journald` configuration.
 
 #### `optionfactory.services.ps1`
 Installs a script in `/etc/profile.d/ps1.sh` that provides an advanced shell prompt. It shows:
-- Dynamic host color based on the hostname.
-- Current branch for Git and Mercurial repositories.
-- Visual indicator if the shell is inside a Docker container.
-- Status of the last command (⚙/⚠).
+- Dynamic true-color (24-bit) host color based on the hostname hash, cached per shell.
+- Current git branch as `[branch]` (dimmed brackets, single fork, detached HEAD falls back to the short commit id).
+- Visual indicator `[docker]` when the shell is inside a container (via `/.dockerenv`/`/run/.containerenv`, cgroup v2 safe).
+- Status of the last command (✔/✘).
 
 **Example:**
 ```yml
