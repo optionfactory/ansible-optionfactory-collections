@@ -15,6 +15,19 @@ def test_resolve_engine_podman_template():
     assert block["template"] == "podman_service.j2"
 
 
+def test_resolve_engine_oneshot_service_template_kind():
+    engine, block = resolve_engine({"container": {"image": "img:1"}}, "oneshot_service")
+    assert engine == "container"
+    assert block["template"] == "docker_oneshot_service.j2"
+
+
+def test_resolve_engine_oneshot_service_template_kind_podman():
+    engine, block = resolve_engine(
+        {"container": {"engine": "podman", "image": "img:1"}}, "oneshot_service"
+    )
+    assert block["template"] == "podman_oneshot_service.j2"
+
+
 def test_resolve_engine_explicit_template_preserved():
     engine, block = resolve_engine({"container": {"image": "img:1", "template": "custom.j2"}})
     assert block["template"] == "custom.j2"

@@ -4,7 +4,7 @@ action_groups:
     - bundle
     - docker
     - journald
-    - legopfa
     - ps1
     - service
+    - timer
     - wireguard_mesh

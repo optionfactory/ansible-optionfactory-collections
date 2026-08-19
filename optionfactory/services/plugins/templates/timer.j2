@@ -1,0 +1,15 @@
+[Unit]
+Description={{ name }} timer
+
+[Timer]
+{% if on_boot_sec %}OnBootSec={{ on_boot_sec }}
+{% endif %}{% if on_unit_active_sec %}OnUnitActiveSec={{ on_unit_active_sec }}
+{% endif %}{% if on_calendar %}OnCalendar={{ on_calendar }}
+{% endif %}{% if persistent %}Persistent=true
+{% endif %}{% if accuracy_sec %}AccuracySec={{ accuracy_sec }}
+{% endif %}{% if randomized_delay_sec %}RandomizedDelaySec={{ randomized_delay_sec }}
+{% endif %}{% if unit %}Unit={{ unit }}
+{% endif %}
+
+[Install]
+WantedBy=timers.target

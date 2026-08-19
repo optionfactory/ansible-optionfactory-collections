@@ -55,8 +55,13 @@ class FakeConnection:
 
 
 class FakeCtx:
-    def __init__(self, facts=None):
-        self.task_vars = {"ansible_facts": facts or {}}
+    def __init__(self, facts=None, task_vars=None):
+        self.task_vars = task_vars if task_vars is not None else {"ansible_facts": facts or {}}
+
+    def with_updated_vars(self, updated):
+        new = FakeCtx(task_vars=self.task_vars.copy())
+        new.task_vars.update(updated)
+        return new
 
 
 def make_plugin(module, step=None, task_args=None, shared_loader_obj=None):

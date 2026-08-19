@@ -119,19 +119,6 @@ Manages `systemd-journald` configuration.
 - `persistent`: (bool) If `true` (default), creates `/var/log/journal` to make logs persistent across reboots.
 - `configuration`: (string) The content to be written to `/etc/systemd/journald.conf`.
 
-#### `optionfactory.services.legopfa`
-Configures a `legopfa` certificate renewal service via a systemd timer.
-
-**Example:**
-```yml
-- name: Configure legopfa certificate renewal
-  optionfactory.services.legopfa:
-    container_name: my-lego-container
-```
-
-**Parameters:**
-- `container_name`: (mandatory) The name of the docker container running `legopfa`.
-
 #### `optionfactory.services.ps1`
 Installs a script in `/etc/profile.d/ps1.sh` that provides an advanced shell prompt. It shows:
 - Dynamic host color based on the hostname.
@@ -176,6 +163,42 @@ A simplified version of `bundle` focused only on creating a systemd unit from a 
 **Parameters:**
 - `name`: (mandatory) Name of the service.
 - `container`, `command`: Engine blocks — exactly one is required (same shape as `bundle`).
+
+
+#### `optionfactory.services.timer`
+Provisions a oneshot systemd service and its associated timer unit in one step, then ensures the timer is started and enabled. Supersedes the removed legopfa-specific timer.
+
+**Example:**
+```yml
+- name: Renew certificates weekly inside an existing container
+  optionfactory.services.timer:
+    name: cert-renewal
+    container:
+      container: nginx-myproject
+      exec: /legopfa-all
+    on_boot_sec: 15min
+    on_unit_active_sec: 1w
+
+- name: Nightly backup via a plain command
+  optionfactory.services.timer:
+    name: backup
+    command:
+      exec: /usr/local/bin/backup
+      args: "--all"
+    on_calendar: "Mon *-*-* 05:00:00"
+    persistent: true
+    randomized_delay_sec: 30min
+```
+
+**Parameters:**
+- `name`: (mandatory) Name of the timer and its oneshot service.
+- `container`, `command`: Engine blocks — exactly one is required.
+  - `container`: runs the command inside an existing, already running container via `<engine> exec`. `engine` (`docker` (default) or `podman`), `container` (mandatory, container name), `exec` (mandatory), `args`, `opts` (extra exec options, e.g. `-ti`), `template` (default: `<engine>_oneshot_service.j2`).
+  - `command`: runs a plain (non-container) command. `exec` (mandatory), `args`, `template` (default: `command_oneshot_service.j2`).
+- `on_boot_sec`, `on_unit_active_sec`, `on_calendar`: scheduling directives — at least one is required (empty values are ignored).
+- `persistent`: (bool, default `false`) catches up on missed activations while the machine was off.
+- `accuracy_sec`, `randomized_delay_sec`, `unit`: optional timer directives (`AccuracySec`, `RandomizedDelaySec`, `Unit`).
+- `timer_template`: custom template for the `.timer` unit (default: `timer.j2`).
 
 
 #### `optionfactory.services.wireguard_mesh`

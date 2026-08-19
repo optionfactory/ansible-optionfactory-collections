@@ -13,3 +13,27 @@
           - dir_stat.stat.exists
           - dir_stat.stat.isdir
           - dir_stat.stat.mode == '0700'
+
+    - name: Timer units were created
+      ansible.builtin.stat:
+        path: "/etc/systemd/system/{{ item }}"
+      loop:
+        - testapp-timer.service
+        - testapp-timer.timer
+      register: timer_units
+
+    - name: Assert timer units state
+      ansible.builtin.assert:
+        that:
+          - timer_units.results | map(attribute='stat.exists') | select('equalto', false) | list | length == 0
+
+    - name: Gather timer unit state
+      ansible.builtin.systemd:
+        name: testapp-timer.timer
+      register: timer_unit
+
+    - name: Assert timer is enabled and active
+      ansible.builtin.assert:
+        that:
+          - timer_unit.status.ActiveState == 'active'
+          - timer_unit.status.UnitFileState == 'enabled'

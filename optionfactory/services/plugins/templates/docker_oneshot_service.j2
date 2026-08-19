@@ -1,0 +1,6 @@
+[Unit]
+Description=docker {{ name }} timer service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec {{ opts }} {{ container }} {{ exec }} {{ args }}

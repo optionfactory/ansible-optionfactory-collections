@@ -40,3 +40,12 @@
         command:
           exec: /usr/bin/sleep
           args: infinity
+
+    - name: Test the services.timer plugin with a command timer
+      optionfactory.services.timer:
+        name: testapp-timer
+        command:
+          exec: /usr/bin/touch
+          args: /tmp/testapp-timer-ran
+        on_boot_sec: 15min
+        on_unit_active_sec: 1h

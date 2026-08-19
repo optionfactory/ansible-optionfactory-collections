@@ -1,0 +1,6 @@
+[Unit]
+Description=podman {{ name }} timer service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec {{ opts }} {{ container }} {{ exec }} {{ args }}

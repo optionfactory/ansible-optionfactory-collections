@@ -1,6 +1,22 @@
 # Changelog
 
 ## [5.0.0]
+- [NEW] Added `optionfactory.services.timer`: provisions a oneshot systemd service and its timer in one step. Engine blocks (`container` with `engine`/`container`/`exec`/`args`/`opts`, or `command` with `exec`/`args`), scheduling via `on_boot_sec`/`on_unit_active_sec`/`on_calendar` (at least one required), plus `persistent`, `accuracy_sec`, `randomized_delay_sec`, `unit` and custom `template`/`timer_template`.
+- **[BREAKING]** [REM] Removed `optionfactory.services.legopfa`: superseded by `optionfactory.services.timer`, which produces equivalent units. Migration:
+  ```yml
+  # before
+  - optionfactory.services.legopfa:
+      container_name: my-lego-container
+
+  # after
+  - optionfactory.services.timer:
+      name: legopfa-renewal
+      container:
+        container: my-lego-container
+        exec: /legopfa-all
+      on_boot_sec: 15min
+      on_unit_active_sec: 1w
+  ```
 - **[BREAKING]** [NEW] Added engine blocks to `optionfactory.services.bundle` and `optionfactory.services.service`: exactly one of `container` or `command` is required, replacing the former flat arguments (`service_name` -> `name`; `service_image`/`service_args` -> the `image`/`opts`/`args` block options).
 - [NEW] The `container` block selects the engine via `engine` (`docker` (default) or `podman`) and supports `image` (mandatory, prefetched and injected into the template context), `opts`, `args`, `env` (a `KEY: value` mapping, rendered as `--env`), `network`, `ip` (rendered as `--network`/`--ip`), `publish` (rendered as `-p`, empty entries skipped), `mounts` (rendered as `--mount type=bind,...`, each supports a `when` conditional) and `volumes` (rendered as `--volume`).
 - **[BREAKING]** [ENH] The image is no longer part of the options string: it must be specified via `image`.

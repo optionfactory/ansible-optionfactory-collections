@@ -165,11 +165,11 @@ class Action(ActionBase):
 SERVICE_ENGINES = ('container', 'command')
 
 
-def resolve_engine(args):
+def resolve_engine(args, template_kind='service'):
     engine = next(e for e in SERVICE_ENGINES if args.get(e))
     block = dict(args.get(engine))
     if engine == 'container' and not block.get('template'):
-        block['template'] = f"{block.get('engine', 'docker')}_service.j2"
+        block['template'] = f"{block.get('engine', 'docker')}_{template_kind}.j2"
     return engine, block
 
 
