@@ -1,6 +1,6 @@
 namespace: optionfactory
 name: services
-version: 5.0.0-dev
+version: 5.0.0
 readme: README.md
 authors:
   - Multiple <info@optionfactory.net>
