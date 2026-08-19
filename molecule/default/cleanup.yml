@@ -1,0 +1,47 @@
+---
+- name: Cleanup
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop and disable the units provisioned by the scenario
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop:
+        - testapp.service
+        - testapp-command.service
+        - testapp-timer.timer
+      failed_when: false
+
+    - name: Remove the systemd units provisioned by the scenario
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ item }}"
+        state: absent
+      loop:
+        - testapp.service
+        - testapp-command.service
+        - testapp-timer.service
+        - testapp-timer.timer
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Remove the scenario container
+      community.docker.docker_container:
+        name: testapp
+        state: absent
+
+    - name: Remove the scenario docker network
+      community.docker.docker_network:
+        name: testapp
+        state: absent
+
+    - name: Remove the scenario files and directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /opt/testapp
+        - /tmp/testapp-timer-ran

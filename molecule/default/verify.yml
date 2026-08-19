@@ -12,7 +12,7 @@
         that:
           - dir_stat.stat.exists
           - dir_stat.stat.isdir
-          - dir_stat.stat.mode == '0700'
+          - dir_stat.stat.mode == '0750'
 
     - name: Timer units were created
       ansible.builtin.stat:

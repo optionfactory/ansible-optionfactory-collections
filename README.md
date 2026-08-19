@@ -46,6 +46,26 @@ $ ansible-galaxy install -r ansible-galaxy.yml
 
 For further clarifications please refer to the latest Ansible docs: https://docs.ansible.com/ansible/latest/user_guide/collections_using.html#install-multiple-collections-with-a-requirements-file
 
+## Development
+
+```bash
+make deps      # create .venv with ansible-core, molecule, ansible-lint, pytest
+make unit      # unit tests
+make lint      # ansible-lint
+make test      # unit tests + molecule scenario (targets localhost, requires root)
+```
+
+The molecule scenario runs against C(localhost) with I(become: true) and exercises real systemd units and docker containers. Ansible invokes C(sudo -n) without a terminal, and sudo's default I(timestamp_type=tty) falls back to per-process records when no tty is present, so a ticket primed in your shell is never seen. C(make test) detects this and aborts with instructions; the one-time fix is a per-user sudoers drop-in enabling global timestamp caching:
+
+```bash
+echo "Defaults:$USER timestamp_type=global" | sudo tee /etc/sudoers.d/timestamp-global
+sudo chmod 440 /etc/sudoers.d/timestamp-global
+```
+
+Afterwards C(make test) prompts for the sudo password once (cache valid 15 minutes by default) and the password is never stored. C(ANSIBLE_BECOME_PASSWORD_FILE=/path/to/file make test) also works in CI since the environment is passed through.
+
+The scenario converges docker containers and systemd units on the host (C(testapp) network and service, C(testapp-command) service, C(testapp-timer) timer) and cleans up after itself: the C(cleanup) playbook runs both before the converge (removing leftovers of previous runs) and after the verify (units, container, network and files).
+
 
 ### Usage
 

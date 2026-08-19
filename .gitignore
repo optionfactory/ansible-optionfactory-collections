@@ -1,5 +1,5 @@
 .venv/
 builds/
-.ansible/collections-test/
+.ansible/
 __pycache__/
 *.py[cod]

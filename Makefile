@@ -16,6 +16,16 @@ unit:
 
 test: unit
 	$(VENV_BIN)/ansible-galaxy collection install optionfactory/services/ --force
+	@if [ "$$(id -u)" -ne 0 ]; then \
+	  sudo -n true </dev/null >/dev/null 2>&1 || sudo -v; \
+	  if ! sudo -n true </dev/null >/dev/null 2>&1; then \
+	    echo "error: the molecule scenario needs sudo that works without a terminal."; \
+	    echo "ansible runs 'sudo -n' with no tty, so the default tty-based timestamp cache never hits."; \
+	    echo "fix it once with:"; \
+	    echo "  echo \"Defaults:$$USER timestamp_type=global\" | sudo tee /etc/sudoers.d/timestamp-global && sudo chmod 440 /etc/sudoers.d/timestamp-global"; \
+	    exit 1; \
+	  fi; \
+	fi
 	$(VENV_BIN)/molecule test
 
 lint:

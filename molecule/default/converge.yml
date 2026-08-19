@@ -6,6 +6,11 @@
     a_var: "a_var_value"
     images_version: 229
   tasks:
+    - name: Ensure the testapp docker network exists
+      community.docker.docker_network:
+        name: testapp
+        state: present
+
     - name: Test the services.bundle plugin
       optionfactory.services.bundle:
         name: testapp
