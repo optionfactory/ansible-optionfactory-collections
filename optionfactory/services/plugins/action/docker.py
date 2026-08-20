@@ -104,47 +104,20 @@ class ActionModule(Action):
             distribution = (facts.get('distribution') or '').lower()
             release = facts.get('distribution_release')
             arch = 'amd64' if facts.get('architecture') == 'x86_64' else 'arm64'
-            err, dir_changed = self.step(ctx, {
-                'step': 'Ensuring keyrings directory exists',
-                'name': 'ansible.builtin.file',
-                'args': {
-                    'path': '/etc/apt/keyrings',
-                    'state': 'directory',
-                    'mode': '0755',
-                    'owner': 'root',
-                    'group': 'root'
-                }
-            })
-            if err:
-                return err, dir_changed
-            err, keyring_changed = self.step(ctx, {
-                'step': 'Provisioning Docker official GPG key',
-                'name': 'ansible.builtin.get_url',
-                'args': {
-                    'url': f"https://download.docker.com/linux/{distribution}/gpg",
-                    'dest': '/etc/apt/keyrings/docker.asc',
-                    'mode': '0644',
-                    'owner': 'root',
-                    'group': 'root'
-                }
-            })
-            if err:
-                return err, dir_changed or keyring_changed
             err, repo_changed = self.step(ctx, {
                 'step': 'Adding Docker APT repository',
-                'name': 'ansible.builtin.apt_repository',
+                'name': 'ansible.builtin.deb822_repository',
                 'args': {
-                    'filename': 'docker',
-                    'repo': (
-                        f"deb [arch={arch} signed-by=/etc/apt/keyrings/docker.asc]"
-                        f" https://download.docker.com/linux/{distribution}"
-                        f" {release} stable"
-                    ),
-                    'state': 'present',
-                    'update_cache': True
+                    'name': 'docker',
+                    'types': 'deb',
+                    'uris': f'https://download.docker.com/linux/{distribution}',
+                    'suites': release,
+                    'components': 'stable',
+                    'architectures': arch,
+                    'signed_by': f'https://download.docker.com/linux/{distribution}/gpg',
                 }
             })
-            return err, deps_changed or dir_changed or keyring_changed or repo_changed
+            return err, deps_changed or repo_changed
         return None, deps_changed
 
     def configure_package(self, ctx, package):
