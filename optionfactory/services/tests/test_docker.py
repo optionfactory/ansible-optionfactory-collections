@@ -69,7 +69,7 @@ def test_repository_redhat():
     assert args["baseurl"] == "https://download.docker.com/linux/centos/9/$basearch/stable"
     assert args["gpgcheck"] is True
     assert args["gpgkey"] == "https://download.docker.com/linux/centos/gpg"
-    assert args["repo_file"] == "docker-ce"
+    assert args["file"] == "docker-ce"
 
 
 def test_repository_unknown_family_degrades_gracefully():

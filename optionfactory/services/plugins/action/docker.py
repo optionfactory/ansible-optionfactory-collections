@@ -89,7 +89,7 @@ class ActionModule(Action):
                 'step': 'Adding Docker YUM repository',
                 'name': 'ansible.builtin.yum_repository',
                 'args': {
-                    'repo_file': 'docker-ce',
+                    'file': 'docker-ce',
                     'name': 'docker-ce-stable',
                     'description': 'Docker CE Stable - $basearch',
                     'baseurl': f"https://download.docker.com/linux/centos/{major_version}/$basearch/stable",
