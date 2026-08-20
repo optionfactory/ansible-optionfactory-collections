@@ -77,7 +77,7 @@ class ActionModule(Action):
             'step': 'Ensuring base dependencies are present',
             'name': 'ansible.builtin.package',
             'args': {
-                'name': ['ca-certificates', 'curl', 'gnupg'],
+                'name': ['ca-certificates'],
                 'state': 'present'
             }
         })

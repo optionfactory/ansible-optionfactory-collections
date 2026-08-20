@@ -38,6 +38,7 @@ def test_repository_debian():
         "package:Ensuring base dependencies are present",
         "deb822_repository:Adding Docker APT repository",
     ]
+    assert calls[0]["args"]["name"] == ["ca-certificates"]
     assert calls[-1]["args"] == {
         "name": "docker",
         "types": "deb",
