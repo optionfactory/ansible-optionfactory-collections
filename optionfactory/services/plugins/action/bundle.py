@@ -25,9 +25,11 @@ class ActionModule(Action):
                     'elements': 'dict',
                     'default': [],
                     'options': {
+                        'type': {'type': 'str', 'default': 'bind'},
                         'source': {'type': 'str', 'required': True},
-                        'target': {'type': 'str', 'required': True},
-                        'readonly': {'type': 'bool', 'default': False},
+                        'target': {'type': 'str'},
+                        'readonly': {'type': 'bool', 'default': True},
+                        'opts': {'type': 'str', 'default': ''},
                         'when': {'type': 'bool', 'default': True}
                     }
                 },

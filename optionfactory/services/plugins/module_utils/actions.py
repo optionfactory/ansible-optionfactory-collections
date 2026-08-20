@@ -189,9 +189,12 @@ def service_vars(name, engine, block):
         for m in block.get('mounts') or []:
             if not boolean(m.get('when', True)):
                 continue
-            flag = f"--mount type=bind,source={m['source']},target={m['target']}"
-            if m.get('readonly'):
+            flag = f"--mount type={m.get('type') or 'bind'},source={m['source']},target={m.get('target') or m['source']}"
+            if boolean(m.get('readonly', True)):
                 flag += ',readonly'
+            extra = ','.join(p.strip() for p in (m.get('opts') or '').split(',') if p.strip())
+            if extra:
+                flag += f",{extra}"
             flags.append(flag)
         for v in block.get('volumes') or []:
             v = (v or '').strip()

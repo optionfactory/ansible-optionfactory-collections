@@ -71,10 +71,32 @@ def test_service_vars_container_full():
         "--network net1 --ip 172.18.0.5 "
         "--env A=1 --env B=2 "
         "-p 0.0.0.0:80:80 "
-        "--mount type=bind,source=/s,target=/t "
+        "--mount type=bind,source=/s,target=/t,readonly "
         "--mount type=bind,source=/s2,target=/t2,readonly "
         "--volume v:/data "
         "--restart unless-stopped"
+    )
+
+
+def test_service_vars_mount_defaults_and_options():
+    vars = service_vars("svc", "container", {
+        "image": "img:1",
+        "mounts": [
+            {"source": "/same"},
+            {"source": "/data", "target": "/var/lib/app", "readonly": False},
+            {
+                "source": "/shared",
+                "target": "/shared",
+                "readonly": False,
+                "type": "volume",
+                "opts": "bind-propagation=rshared, bind-create-src",
+            },
+        ],
+    })
+    assert vars["opts"] == (
+        "--mount type=bind,source=/same,target=/same,readonly "
+        "--mount type=bind,source=/data,target=/var/lib/app "
+        "--mount type=volume,source=/shared,target=/shared,bind-propagation=rshared,bind-create-src"
     )
 
 
