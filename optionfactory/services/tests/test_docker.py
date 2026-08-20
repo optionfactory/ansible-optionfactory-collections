@@ -36,24 +36,24 @@ def test_repository_debian():
     assert err is None
     assert steps(calls) == [
         "package:Ensuring base dependencies are present",
-        "file:Ensuring keyrings directory exists",
-        "get_url:Provisioning Docker official GPG key",
-        "apt_repository:Adding Docker APT repository",
+        "deb822_repository:Adding Docker APT repository",
     ]
-    apt = calls[-1]["args"]
-    assert apt["repo"] == (
-        "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]"
-        " https://download.docker.com/linux/ubuntu noble stable"
-    )
-    assert apt["update_cache"] is True
-    assert calls[-2]["args"]["url"] == "https://download.docker.com/linux/ubuntu/gpg"
+    assert calls[-1]["args"] == {
+        "name": "docker",
+        "types": "deb",
+        "uris": "https://download.docker.com/linux/ubuntu",
+        "suites": "noble",
+        "components": "stable",
+        "architectures": "amd64",
+        "signed_by": "https://download.docker.com/linux/ubuntu/gpg",
+    }
 
 
 def test_repository_debian_arm64():
     calls, plugin = repo_calls()
     facts = dict(DEBIAN_FACTS, architecture="aarch64")
     plugin.configure_repository(FakeCtx(facts), "docker-ce")
-    assert "arch=arm64" in calls[-1]["args"]["repo"]
+    assert calls[-1]["args"]["architectures"] == "arm64"
 
 
 def test_repository_redhat():
@@ -112,8 +112,6 @@ def test_run_step_order_and_changed_aggregation():
     assert res["changed"] is True
     assert [c.get("step") for c in calls] == [
         "Ensuring base dependencies are present",
-        "Ensuring keyrings directory exists",
-        "Provisioning Docker official GPG key",
         "Adding Docker APT repository",
         "Ensuring docker package 'docker-ce' is installed",
         "Provisioning group docker-machines",
