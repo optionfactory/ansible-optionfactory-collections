@@ -198,8 +198,9 @@ class ActionModule(Action):
             if is_inline:
                 args['content'] = f.get('content')
             else:
-                args['src'] = self._find_needle('files', f.get('src'))
-                args['remote_src'] = f.get('remote_src') == True
+                remote_src = f.get('remote_src') == True
+                args['src'] = f.get('src') if remote_src else self._find_needle('files', f.get('src'))
+                args['remote_src'] = remote_src
 
             dest = f.get('dest')
             err, changed = self.step(ctx, {
