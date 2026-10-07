@@ -117,6 +117,13 @@ class ActionModule(Action):
                     'signed_by': f'https://download.docker.com/linux/{distribution}/gpg',
                 }
             })
+            self.step(ctx, {
+                'step': 'Refresh APT cache',
+                'name': 'ansible.builtin.apt',
+                'args': {
+                    'update_cache': repo_changed
+                }
+            })
             return err, deps_changed or repo_changed
         return None, deps_changed
 

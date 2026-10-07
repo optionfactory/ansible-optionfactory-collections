@@ -37,9 +37,10 @@ def test_repository_debian():
     assert steps(calls) == [
         "package:Ensuring base dependencies are present",
         "deb822_repository:Adding Docker APT repository",
+        "apt:Refresh APT cache",
     ]
     assert calls[0]["args"]["name"] == ["ca-certificates"]
-    assert calls[-1]["args"] == {
+    assert calls[1]["args"] == {
         "name": "docker",
         "types": "deb",
         "uris": "https://download.docker.com/linux/ubuntu",
@@ -48,13 +49,14 @@ def test_repository_debian():
         "architectures": "amd64",
         "signed_by": "https://download.docker.com/linux/ubuntu/gpg",
     }
+    assert calls[2]["args"]["update_cache"] == False
 
 
 def test_repository_debian_arm64():
     calls, plugin = repo_calls()
     facts = dict(DEBIAN_FACTS, architecture="aarch64")
     plugin.configure_repository(FakeCtx(facts), "docker-ce")
-    assert calls[-1]["args"]["architectures"] == "arm64"
+    assert calls[1]["args"]["architectures"] == "arm64"
 
 
 def test_repository_redhat():
@@ -114,6 +116,7 @@ def test_run_step_order_and_changed_aggregation():
     assert [c.get("step") for c in calls] == [
         "Ensuring base dependencies are present",
         "Adding Docker APT repository",
+        "Refresh APT cache",
         "Ensuring docker package 'docker-ce' is installed",
         "Provisioning group docker-machines",
         "Provisioning user docker-machines",
