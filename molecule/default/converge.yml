@@ -4,7 +4,7 @@
   become: true
   vars:
     a_var: "a_var_value"
-    images_version: 247
+    images_version: 250
   tasks:
     - name: Ensure the testapp docker network exists
       community.docker.docker_network:
