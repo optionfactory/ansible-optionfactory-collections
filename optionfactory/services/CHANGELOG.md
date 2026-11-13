@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.1.0]
+- [NEW] Added the `enabled` option (default `true`) to `optionfactory.services.timer`: when `false` the units are still provisioned but the timer is stopped and disabled.
+- [FIX] `optionfactory.services.wireguard_mesh`: containers on the docker mesh network could not reach the internet or hosts outside the mesh. Traffic leaving the mesh from `docker_mesh_subnet` is now masqueraded; traffic between mesh containers keeps the container source address.
+- [FIX] Declared the `ansible.posix` collection dependency, required by `optionfactory.services.wireguard_mesh`.
+
 ## [5.0.0]
 - [ENH] Rewrote the `optionfactory.services.ps1` prompt: 24-bit true color, hostname color cached per shell, git branch as `[branch]` with dimmed brackets (single fork, detached-HEAD fallback to short commit id), docker indicator via `/.dockerenv`/`/run/.containerenv` (cgroup v2 safe), ✔/✘ status icons, `\001`/`\002` readline markers. Removed Mercurial support.
 - [NEW] Added `optionfactory.services.timer`: provisions a oneshot systemd service and its timer in one step. Engine blocks (`container` with `engine`/`container`/`exec`/`args`/`opts`, or `command` with `exec`/`args`), scheduling via `on_boot_sec`/`on_unit_active_sec`/`on_calendar` (at least one required), plus `persistent`, `accuracy_sec`, `randomized_delay_sec`, `unit` and custom `template`/`timer_template`.

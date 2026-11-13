@@ -63,6 +63,27 @@ def test_timer_command_provisions_units_and_starts_timer():
     assert sysd["args"]["daemon_reload"] is False
 
 
+def test_timer_disabled_provisions_units_and_stops_timer():
+    calls = []
+    plugin = make_timer_plugin(
+        {
+            "name": "backup",
+            "command": {"exec": "/usr/bin/backup"},
+            "on_calendar": "daily",
+            "enabled": False,
+        },
+        calls,
+    )
+    res = plugin.run(None, {})
+    assert res["failed"] is False
+    svc, timer, sysd = calls
+    assert svc["args"]["dest"] == "/etc/systemd/system/backup.service"
+    assert timer["args"]["dest"] == "/etc/systemd/system/backup.timer"
+    assert sysd["args"]["name"] == "backup.timer"
+    assert sysd["args"]["state"] == "stopped"
+    assert sysd["args"]["enabled"] is False
+
+
 def test_timer_container_defaults_to_engine_template():
     calls = []
     plugin = make_timer_plugin(

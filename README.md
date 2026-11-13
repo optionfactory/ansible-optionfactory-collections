@@ -17,7 +17,7 @@ If the collections are published on a known server (e.g. Ansible Galaxy), use it
 ```yml
 collections:
   - name: optionfactory.services
-    version: 5.0.0
+    version: 5.1.0
 ```
 
 The `version` is optional: when omitted, the latest release is installed. When using multiple servers, pin the source explicitly:
@@ -26,7 +26,7 @@ The `version` is optional: when omitted, the latest release is installed. When u
 collections:
   - name: optionfactory.services
     source: https://galaxy.ansible.com
-    version: 5.0.0
+    version: 5.1.0
 ```
 
 If the collections are not published on a known server, use its GitHub repository url:
@@ -35,7 +35,7 @@ If the collections are not published on a known server, use its GitHub repositor
 collections:
   - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory
     type: git
-    version: 5.0.0
+    version: 5.1.0
 ```
 
 Afterwards, run ansible-galaxy to install:
@@ -186,7 +186,7 @@ A simplified version of `bundle` focused only on creating a systemd unit from a 
 
 
 #### `optionfactory.services.timer`
-Provisions a oneshot systemd service and its associated timer unit in one step, then ensures the timer is started and enabled. Supersedes the removed legopfa-specific timer.
+Provisions a oneshot systemd service and its associated timer unit in one step, then ensures the timer is started and enabled (or stopped and disabled with `enabled: false`). Supersedes the removed legopfa-specific timer.
 
 **Example:**
 ```yml
@@ -219,6 +219,7 @@ Provisions a oneshot systemd service and its associated timer unit in one step, 
 - `persistent`: (bool, default `false`) catches up on missed activations while the machine was off.
 - `accuracy_sec`, `randomized_delay_sec`, `unit`: optional timer directives (`AccuracySec`, `RandomizedDelaySec`, `Unit`).
 - `timer_template`: custom template for the `.timer` unit (default: `timer.j2`).
+- `enabled`: (bool, default `true`) when `false` the units are still provisioned but the timer is stopped and disabled, so it never fires. A run already in progress is left to finish.
 
 
 #### `optionfactory.services.wireguard_mesh`

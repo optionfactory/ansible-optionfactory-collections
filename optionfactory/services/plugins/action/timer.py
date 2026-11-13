@@ -33,6 +33,7 @@ class ActionModule(Action):
         'randomized_delay_sec': {'type': 'str'},
         'unit': {'type': 'str'},
         'timer_template': {'type': 'str', 'default': 'timer.j2'},
+        'enabled': {'type': 'bool', 'default': True},
     }
     VALIDATOR_KWARGS = {
         'mutually_exclusive': [('container', 'command')],
@@ -42,6 +43,7 @@ class ActionModule(Action):
     def run(self, tmp=None, task_vars=None):
         args, ctx = super(ActionModule, self).run(tmp, task_vars)
         name = args.get('name')
+        enabled = args.get('enabled')
         engine, block = resolve_engine(args, 'oneshot_service')
         if not block.get('template'):
             raise AnsibleActionFail("The 'template' parameter cannot be empty.")
@@ -53,12 +55,12 @@ class ActionModule(Action):
         if err:
             return err
         err, start_changed = self.step(ctx, {
-            'step': f"Ensuring {name}.timer is started and enabled",
+            'step': f"Ensuring {name}.timer is {'started and enabled' if enabled else 'stopped and disabled'}",
             'name': 'ansible.builtin.systemd',
             'args': {
                 'name': f"{name}.timer",
-                'state': 'started',
-                'enabled': True,
+                'state': 'started' if enabled else 'stopped',
+                'enabled': enabled,
                 'daemon_reload': service_changed or timer_changed
             }
         })

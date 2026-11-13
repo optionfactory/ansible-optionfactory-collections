@@ -97,6 +97,13 @@ options:
         required: false
         default: "timer.j2"
         description: "Jinja2 template for the systemd .timer unit (searches in Ansible paths or plugin defaults)."
+    enabled:
+        type: bool
+        required: false
+        default: true
+        description:
+            - "When false, the units are still provisioned but the timer is stopped and disabled, so it never fires."
+            - "A run already in progress is left to finish, and the service can still be started by hand."
 '''
 
 EXAMPLES = r'''
