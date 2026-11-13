@@ -1,4 +1,8 @@
-from conftest import make_plugin
+import os
+
+import jinja2
+
+from conftest import COLLECTION_SRC, make_plugin
 
 from ansible_collections.optionfactory.services.plugins.action import wireguard_mesh as wg_mod
 
@@ -34,3 +38,16 @@ def test_partition_happy_path():
     assert err is None
     assert local is peers[0]
     assert remotes == peers[1:]
+
+
+def test_config_masquerades_local_docker_subnet_only_outside_the_mesh():
+    with open(os.path.join(COLLECTION_SRC, "plugins", "templates", "wireguard_mesh_config.j2")) as f:
+        template = jinja2.Environment().from_string(f.read())
+    config = template.render(
+        wg_interface="wg-mesh",
+        local={**peer("10.1.1.1"), "docker_mesh_subnet": "172.19.10.0/24"},
+        remote_peers=[{**peer("10.1.1.2"), "docker_mesh_subnet": "172.19.20.0/24"}],
+    )
+    rule = "POSTROUTING -s 172.19.10.0/24 ! -d 172.19.10.0/24 ! -o wg-mesh -j MASQUERADE"
+    assert f"PostUp = iptables -t nat -I {rule}" in config
+    assert f"PostDown = iptables -t nat -D {rule}" in config

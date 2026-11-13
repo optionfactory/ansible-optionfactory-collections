@@ -6,8 +6,10 @@ PrivateKey = {{ local.private_key }}
 PostUp = iptables -t filter -N DOCKER-USER 2>/dev/null || true
 PostUp = iptables -I DOCKER-USER -i {{ wg_interface }} -j ACCEPT
 PostUp = iptables -I DOCKER-USER -o {{ wg_interface }} -j ACCEPT
+PostUp = iptables -t nat -I POSTROUTING -s {{ local.docker_mesh_subnet }} ! -d {{ local.docker_mesh_subnet }} ! -o {{ wg_interface }} -j MASQUERADE
 PostDown = iptables -D DOCKER-USER -i {{ wg_interface }} -j ACCEPT
 PostDown = iptables -D DOCKER-USER -o {{ wg_interface }} -j ACCEPT
+PostDown = iptables -t nat -D POSTROUTING -s {{ local.docker_mesh_subnet }} ! -d {{ local.docker_mesh_subnet }} ! -o {{ wg_interface }} -j MASQUERADE || true
 
 {% for peer in remote_peers %}
 [Peer]
