@@ -22,7 +22,10 @@ options:
     docker_mesh_mtu:
         type: int
         required: false
-        description: "The Docker mesh interface mtu (e.g., 1420)"
+        description:
+            - "The Docker mesh interface mtu (e.g., 1420)"
+            - "Changing it on an existing mesh recreates the Docker network: attached containers are
+               reconnected with newly assigned addresses, so containers with a fixed ip must be recreated."
     config_template:
         type: str
         required: false
