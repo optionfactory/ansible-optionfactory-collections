@@ -8,7 +8,8 @@ Restart=always
 RestartSec=5
 ExecStartPre=-/usr/bin/docker rm -f {{ name }}
 ExecStart=/usr/bin/docker run --name {{ name }} --log-driver=none {{ opts }} {{ image }} {{ args }}
-ExecStop=-/usr/bin/docker rm -f {{ name }}
+ExecStop=-/usr/bin/docker stop -t 30 {{ name }}
+ExecStopPost=-/usr/bin/docker rm -f {{ name }}
 
 [Install]
 WantedBy=multi-user.target

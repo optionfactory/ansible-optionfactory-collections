@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.2.0]
+- [FIX] Docker services stop cleanly: the unit stopped the container with `docker rm -f`, which kills it with SIGKILL, so databases were never shut down (and backups taken after `systemctl stop` copied a killed database). `ExecStop` is now `docker stop -t 30` (SIGTERM, SIGKILL only after 30 seconds) and the container is removed in `ExecStopPost`, also when it exits on its own.
+
 ## [5.1.0]
 - [NEW] Added the `enabled` option (default `true`) to `optionfactory.services.timer`: when `false` the units are still provisioned but the timer is stopped and disabled.
 - [FIX] `optionfactory.services.wireguard_mesh`: containers on the docker mesh network could not reach the internet or hosts outside the mesh. Traffic leaving the mesh from `docker_mesh_subnet` is now masqueraded; traffic between mesh containers keeps the container source address.
