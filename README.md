@@ -17,7 +17,7 @@ If the collections are published on a known server (e.g. Ansible Galaxy), use it
 ```yml
 collections:
   - name: optionfactory.services
-    version: 5.2.0
+    version: 5.3.0
 ```
 
 The `version` is optional: when omitted, the latest release is installed. When using multiple servers, pin the source explicitly:
@@ -26,7 +26,7 @@ The `version` is optional: when omitted, the latest release is installed. When u
 collections:
   - name: optionfactory.services
     source: https://galaxy.ansible.com
-    version: 5.2.0
+    version: 5.3.0
 ```
 
 If the collections are not published on a known server, use its GitHub repository url:
@@ -35,7 +35,7 @@ If the collections are not published on a known server, use its GitHub repositor
 collections:
   - name: https://github.com/optionfactory/ansible-optionfactory-collections.git#optionfactory
     type: git
-    version: 5.2.0
+    version: 5.3.0
 ```
 
 Afterwards, run ansible-galaxy to install:
