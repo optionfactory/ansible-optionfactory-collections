@@ -86,6 +86,25 @@ options:
                 required: false
                 default: []
                 description: "Volumes in docker/podman syntax (e.g. 'mydata:/data'). Rendered as '--volume <volume>'. Empty entries are ignored. Bind mounts are better expressed via 'mounts'."
+            routes:
+                type: list
+                elements: dict
+                required: false
+                default: []
+                description:
+                    - "Static routes added to the container network namespace right after it starts (docker engine only; ignored by the podman template)."
+                    - "Rendered as an ExecStartPost that waits up to 10 seconds for the container network and runs 'ip route replace <to> via <via>' from the host."
+                    - "Meant for containers on several networks, where only one can provide the default gateway: the others are reached through these routes."
+                    - "The network that provides the default gateway must have the highest gateway priority (docker: 'gw-priority' in '--network', default 0), e.g. '--network name=project --network name=wg-mesh-docker,gw-priority=-1,ip=172.19.10.11'."
+                suboptions:
+                    to:
+                        type: str
+                        required: true
+                        description: "Destination in CIDR notation (e.g. 172.19.20.0/24)."
+                    via:
+                        type: str
+                        required: true
+                        description: "Gateway, an address on one of the container networks (e.g. 172.19.10.1)."
             template:
                 type: str
                 required: false

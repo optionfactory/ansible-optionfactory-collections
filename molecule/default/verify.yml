@@ -37,3 +37,20 @@
         that:
           - timer_unit.status.ActiveState == 'active'
           - timer_unit.status.UnitFileState == 'enabled'
+
+    - name: Container routes were added after start
+      block:
+        - name: Gather the testapp container state
+          community.docker.docker_container_info:
+            name: testapp
+          register: testapp_container
+
+        - name: Read the routes of the testapp container
+          ansible.builtin.command: nsenter --net={{ testapp_container.container.NetworkSettings.SandboxKey }} ip -json route show 192.0.2.0/24
+          register: testapp_routes
+          changed_when: false
+
+        - name: Assert the container route
+          ansible.builtin.assert:
+            that:
+              - testapp_routes.stdout | from_json | map(attribute='gateway') | list == ['172.18.0.1']

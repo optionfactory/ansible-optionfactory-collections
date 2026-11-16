@@ -31,6 +31,9 @@
             - source: /opt/testapp/bin
               target: /opt/testapp/bin
               when: false
+          routes:
+            - to: 192.0.2.0/24
+              via: 172.18.0.1
         dirs:
           - dest: /opt/testapp/
           - dest: /opt/testapp/bin

@@ -31,6 +31,15 @@ class ActionModule(Action):
                     }
                 },
                 'volumes': {'type': 'list', 'elements': 'str', 'default': []},
+                'routes': {
+                    'type': 'list',
+                    'elements': 'dict',
+                    'default': [],
+                    'options': {
+                        'to': {'type': 'str', 'required': True},
+                        'via': {'type': 'str', 'required': True},
+                    }
+                },
                 'template': {'type': 'str'},
             },
         },

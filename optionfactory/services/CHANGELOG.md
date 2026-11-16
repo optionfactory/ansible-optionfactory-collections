@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.3.0]
+- [FIX] `optionfactory.services.wireguard_mesh`: containers on the docker mesh network reach the internet and hosts outside the mesh without a NAT rule. The masquerade added in 5.1.0 is removed: such containers attach to a second network that provides the default gateway. That network must have a higher gateway priority than the mesh network, e.g. by lowering the mesh one (`--network name=<network> --network name=wg-mesh-docker,gw-priority=-1,ip=<mesh ip>`): with the mesh network as default gateway, traffic leaving the mesh is not masqueraded and gets no reply. The containers reach the other nodes through the new `routes` option of the `container` block of `optionfactory.services.bundle` and `optionfactory.services.service` (docker engine), a list of `to`/`via` static routes added to the container network namespace right after it starts: one per remote `docker_mesh_subnet`, `via` the local mesh gateway. Traffic between mesh containers keeps the container source address.
+
 ## [5.2.0]
 - [FIX] Docker services stop cleanly: the unit stopped the container with `docker rm -f`, which kills it with SIGKILL, so databases were never shut down (and backups taken after `systemctl stop` copied a killed database). `ExecStop` is now `docker stop -t 30` (SIGTERM, SIGKILL only after 30 seconds) and the container is removed in `ExecStopPost`, also when it exits on its own.
 

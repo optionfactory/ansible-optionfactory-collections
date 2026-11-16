@@ -100,7 +100,7 @@ This action is a powerful tool for defining an entire service in a single operat
 **Main parameters:**
 - `name`: (mandatory) Name of the systemd service.
 - `container`, `command`: Engine blocks — exactly one is required.
-  - `container`: containerized service. `engine` (`docker` (default) or `podman`), `image` (mandatory, prefetched via `community.docker.docker_image`), `opts`, `args`, `env` (a `KEY: value` mapping, rendered as `--env`), `network`, `ip` (rendered as `--network`/`--ip`), `publish` (rendered as `-p`, empty entries ignored), `mounts` (rendered as `--mount type=<type>,source=<source>,target=<target>[,readonly][,<opts>]`; each entry supports `type` (default `bind`), `source` (mandatory), `target` (defaults to `source`), `readonly` (default `true`), `opts` (comma-separated extra mount options, appended verbatim, e.g. `bind-propagation=rshared`), and `when`), `volumes` (rendered as `--volume`, empty entries ignored), `template` (default: `<engine>_service.j2`). Empty `opts`/`network`/`ip` values are ignored, enabling Jinja conditionals that yield empty strings.
+  - `container`: containerized service. `engine` (`docker` (default) or `podman`), `image` (mandatory, prefetched via `community.docker.docker_image`), `opts`, `args`, `env` (a `KEY: value` mapping, rendered as `--env`), `network`, `ip` (rendered as `--network`/`--ip`), `publish` (rendered as `-p`, empty entries ignored), `mounts` (rendered as `--mount type=<type>,source=<source>,target=<target>[,readonly][,<opts>]`; each entry supports `type` (default `bind`), `source` (mandatory), `target` (defaults to `source`), `readonly` (default `true`), `opts` (comma-separated extra mount options, appended verbatim, e.g. `bind-propagation=rshared`), and `when`), `volumes` (rendered as `--volume`, empty entries ignored), `routes` (docker only: a list of `to`/`via` static routes added to the container network namespace right after it starts, for containers on several networks where only one provides the default gateway), `template` (default: `<engine>_service.j2`). Empty `opts`/`network`/`ip` values are ignored, enabling Jinja conditionals that yield empty strings.
   - `command`: runs a plain (non-container) command as a service after the network is online. `exec` (mandatory), `args`, `template` (default: `command_service.j2`).
 - `dirs`, `files`, `templates`: Lists of resources to be created/distributed.
 - `owner`, `group`: Default owners (default: `docker-machines`).
@@ -246,4 +246,20 @@ Configures a full-mesh WireGuard VPN topology.
         docker_mesh_subnet: "172.18.3.0/24"
         private_key: "{{ vault_node_c_priv }}"
         public_key: "PubKeyC="
+```
+
+The docker mesh network (`<interface>-docker`, default `wg-mesh-docker`) is routed, not masqueraded: it carries traffic between the nodes only. A container that also needs the internet or hosts outside the mesh must be attached to a second, masqueraded network, and **that network must have a higher gateway priority than the mesh network**, so that it provides the default gateway. With the mesh network as default gateway, traffic leaving the mesh is not masqueraded and gets no reply. The other nodes are then reached with the `routes` option of the `container` block, one route per remote `docker_mesh_subnet` via the gateway of the local one:
+
+```yml
+- name: Service on the mesh, node A
+  optionfactory.services.bundle:
+    name: myapp
+    container:
+      image: "myimage:1"
+      opts: >-
+        --network name=myproject,ip=172.20.0.11
+        --network name=wg-mesh-docker,gw-priority=-1,ip=172.18.1.11
+      routes:
+        - { to: 172.18.2.0/24, via: 172.18.1.1 }
+        - { to: 172.18.3.0/24, via: 172.18.1.1 }
 ```

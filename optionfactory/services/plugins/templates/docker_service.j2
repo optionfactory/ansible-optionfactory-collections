@@ -8,6 +8,14 @@ Restart=always
 RestartSec=5
 ExecStartPre=-/usr/bin/docker rm -f {{ name }}
 ExecStart=/usr/bin/docker run --name {{ name }} --log-driver=none {{ opts }} {{ image }} {{ args }}
+{% if routes | default([]) %}
+ExecStartPost=/usr/bin/timeout 10 /bin/sh -c 'until \
+    ns=$$(docker inspect -f "{% raw %}{{.NetworkSettings.SandboxKey}}{% endraw %}" {{ name }}) \
+{% for route in routes %}
+    && nsenter --net="$$ns" ip route replace {{ route.to }} via {{ route.via }}{{ ';' if loop.last else '' }} \
+{% endfor %}
+  do sleep 0.1; done 2>/dev/null'
+{% endif %}
 ExecStop=-/usr/bin/docker stop -t 30 {{ name }}
 ExecStopPost=-/usr/bin/docker rm -f {{ name }}
 

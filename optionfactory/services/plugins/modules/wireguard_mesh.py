@@ -8,6 +8,9 @@ description:
     - It installs necessary packages, enables IPv4 forwarding, generates the wg interface
       configuration, the docker mesh network, manages the systemd service, configures docker daemon to start
       after the configured wg-quick service.
+    - "The docker mesh network is routed, not masqueraded, so it carries traffic between the nodes only. A container that also needs the internet or hosts outside the mesh must be attached to a second, masqueraded network."
+    - "That second network must have a higher gateway priority than the mesh network, so that it provides the default gateway (e.g. '--network name=project --network name=wg-mesh-docker,gw-priority=-1,ip=172.19.10.11'). With the mesh network as default gateway, traffic leaving the mesh is not masqueraded and gets no reply."
+    - "The other nodes are then reached with the 'routes' option of the 'container' block of M(optionfactory.services.bundle) and M(optionfactory.services.service), one route per remote 'docker_mesh_subnet' via the gateway of the local one."
 
 options:
     host_ip:
