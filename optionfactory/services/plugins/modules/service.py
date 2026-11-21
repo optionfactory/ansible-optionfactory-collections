@@ -72,8 +72,8 @@ options:
                     readonly:
                         type: bool
                         required: false
-                        default: false
-                        description: "Mount the bind read-only."
+                        default: true
+                        description: "Mount the bind read-only. A mount the container writes to needs 'readonly: false'."
                     when:
                         type: bool
                         required: false
